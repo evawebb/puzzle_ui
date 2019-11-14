@@ -5,6 +5,7 @@ var grid_size = 9;
 var cell_size = canvas_size / grid_size;
 var state = [];
 var locks = [];
+var notes = [];
 var mouse_is_down = false;
 var selected = [];
 var setting = false;
@@ -16,12 +17,15 @@ function setup() {
   for (var y = 0; y < grid_size; y += 1) {
     var state_row = [];
     var lock_row = []
+    var note_row = [];
     for (var x = 0; x < grid_size; x += 1) {
       state_row.push([]);
       lock_row.push(false);
+      note_row.push(false);
     }
     state.push(state_row);
     locks.push(lock_row);
+    notes.push(note_row);
   }
 
   canvas.addEventListener("mousedown", on_mousedown);
@@ -32,17 +36,19 @@ function setup() {
   render();
 }
 
-// why is there a delay for single clicks?
-
 function on_mousedown(event) {
   mouse_is_down = true;
   var x = Math.floor((event.pageX - canvas.offsetLeft) / cell_size);
   var y = Math.floor((event.pageY - canvas.offsetTop) / cell_size);
   selected = [[x, y]];
+
+  render();
 }
 
 function on_mouseup(event) {
   mouse_is_down = false;
+
+  render();
 }
 
 function on_mousemove(event) {
@@ -87,16 +93,20 @@ function on_key(event) {
         }
       } 
     }
-  } if (selected.length == 1 && event.key == "ArrowUp" && selected[i][1] > 0) {
+  } else if (selected.length == 1 && event.key == "ArrowUp" && selected[0][1] > 0) {
     selected[0][1] -= 1;
-  } else if (selected.length == 1 && event.key == "ArrowDown" && selected[i][1] < grid_size - 1) {
+  } else if (selected.length == 1 && event.key == "ArrowDown" && selected[0][1] < grid_size - 1) {
     selected[0][1] += 1;
-  } else if (selected.length == 1 && event.key == "ArrowLeft" && selected[i][0] > 0) {
+  } else if (selected.length == 1 && event.key == "ArrowLeft" && selected[0][0] > 0) {
     selected[0][0] -= 1;
-  } else if (selected.length == 1 && event.key == "ArrowRight" && selected[i][0] < grid_size - 1) {
+  } else if (selected.length == 1 && event.key == "ArrowRight" && selected[0][0] < grid_size - 1) {
     selected[0][0] += 1;
   } else if (event.key == "s") {
     setting = !setting;
+  } else if (selected.length > 0 && event.key == "n") {
+    for (var i = 0; i < selected.length; i += 1) {
+      notes[selected[i][1]][selected[i][0]] = !notes[selected[i][1]][selected[i][0]]
+    }
   }
 
   render();
@@ -185,41 +195,63 @@ function draw_grid() {
 }
 
 function draw_numbers() {
-  context.textAlign = "center";
-  context.textBaseline = "middle";
   for (var x = 0; x < grid_size; x += 1) {
     for (var y = 0; y < grid_size; y += 1) {
       var cell = state[y][x];
-      var font_size = null;
-      var text = null;
+      if (cell.length > 0) {
+        var font_size = null;
+        var text = null;
 
-      if (cell.length == 1) {
-        font_size = Math.floor(cell_size * 0.8);
-        text = cell;
-      } else if (1 < cell.length && cell.length <= 5) {
-        font_size = Math.floor(cell_size * 0.4);
-        text = [cell.sort().join("")];
-      } else if (5 < cell.length) {
-        font_size = Math.floor(cell_size * 0.4);
-        text = [
-          cell.sort().slice(0, 5).join(""),
-          cell.sort().slice(5).join("")
-        ];
-      }
+        // Format the text appropriately
+        if (cell.length == 1) {
+          text = cell;
+        } else if (1 < cell.length && cell.length <= 5) {
+          text = [cell.sort().join("")];
+        } else if (5 < cell.length) {
+          text = [
+            cell.sort().slice(0, 5).join(""),
+            cell.sort().slice(5).join("")
+          ];
+        }
 
-      if (font_size && text) {
+        // Set the font size 
+        if (cell.length == 1 && !notes[y][x]) {
+          context.font = "" + Math.floor(cell_size * 0.8) + "px serif";
+        } else {
+          context.font = "" + Math.floor(cell_size * 0.4) + "px serif";
+        }
+
+        // Set the text color
         if (!setting && locks[y][x]) {
           context.fillStyle = "#808080";
         } else {
           context.fillStyle = "#000000";
         }
-        context.font = "" + font_size + "px serif";
+
+        // Set the text alignment
+        if (!notes[y][x]) {
+          context.textAlign = "center";
+          context.textBaseline = "middle";
+        } else {
+          context.textAlign = "left";
+          context.textBaseline = "top";
+        }
+
+        // Draw the text
         for (var i = 0; i < text.length; i += 1) {
-          context.fillText(
-            text[i],
-            (x + 0.5) * cell_size,
-            (y + ((i + 1) / (text.length + 1))) * cell_size
-          );
+          if (!notes[y][x]) {
+            context.fillText(
+              text[i],
+              (x + 0.5) * cell_size,
+              (y + ((i + 1) / (text.length + 1))) * cell_size
+            );
+          } else {
+            context.fillText(
+              text[i],
+              (x + 0.02) * cell_size,
+              (y + (i / 3) + 0.02) * cell_size
+            );
+          }
         }
       }
     }
