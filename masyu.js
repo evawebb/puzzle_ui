@@ -3,16 +3,18 @@ var context;
 var state = [];
 var path_start = null;
 var paths = [];
-var grid_size = 10;
-var cell_size = 500 / grid_size;
+var canvas_size = 1000;
+var grid_width = 10;
+var grid_height = 10;
+var cell_size = canvas_size / Math.max(grid_width, grid_height);
 
 function setup() {
   canvas = document.getElementById("puzzle");
   context = canvas.getContext("2d");
 
-  for (var y = 0; y < grid_size; y += 1) {
+  for (var y = 0; y < grid_height; y += 1) {
     var row = [];
-    for (var x = 0; x < grid_size; x += 1) {
+    for (var x = 0; x < grid_width; x += 1) {
       row.push("e");
     }
     state.push(row);
@@ -27,59 +29,65 @@ function setup() {
 function on_click(event) {
   var x = Math.floor((event.pageX - canvas.offsetLeft) / cell_size);
   var y = Math.floor((event.pageY - canvas.offsetTop) / cell_size);
-  var setting = event.shiftKey;
 
-  if (setting) {
-    if (state[y][x] == "e") {
-      state[y][x] = "b";
-    } else if (state[y][x] == "b") {
-      state[y][x] = "w";
-    } else if (state[y][x] == "w") {
-      state[y][x] = "e";
-    }
-  } else {
-    if (path_start) {
-      if (x == path_start[0] && y != path_start[1]) {
-        if (y < path_start[1]) {
-          paths.push([[x, y], path_start]);
-        } else {
-          paths.push([path_start, [x, y]]);
-        }
-      } else if (x != path_start[0] && y == path_start[1]) {
-        if (x < path_start[0]) {
-          paths.push([[x, y], path_start]);
-        } else {
-          paths.push([path_start, [x, y]]);
-        }
+  if (x >= 0 && x < grid_width && y >= 0 && y < grid_height) {
+    var setting = event.shiftKey;
+    if (setting) {
+      if (state[y][x] == "e") {
+        state[y][x] = "b";
+      } else if (state[y][x] == "b") {
+        state[y][x] = "w";
+      } else if (state[y][x] == "w") {
+        state[y][x] = "e";
       }
-      path_start = null;
     } else {
-      path_start = [x, y];
+      if (path_start) {
+        if (x == path_start[0] && y != path_start[1]) {
+          if (y < path_start[1]) {
+            paths.push([[x, y], path_start]);
+          } else {
+            paths.push([path_start, [x, y]]);
+          }
+        } else if (x != path_start[0] && y == path_start[1]) {
+          if (x < path_start[0]) {
+            paths.push([[x, y], path_start]);
+          } else {
+            paths.push([path_start, [x, y]]);
+          }
+        }
+        path_start = null;
+      } else {
+        path_start = [x, y];
+      }
     }
-  }
 
-  render();
+    render();
+  }
 }
 
 function on_key(event) {
-  if (event.key == "=" || event.key == "+" || event.key == "-" || event.key == "_") {
-    if (event.key == "=" || event.key == "+") {
-      grid_size += 1;
-    } else if (event.key == "-" || event.key == "_") {
-      grid_size -= 1;
+  if (event.key == "h" || event.key == "j" || event.key == "k" || event.key == "l") {
+    if (event.key == "h") {
+      grid_width -= 1;
+    } else if (event.key == "j") {
+      grid_height += 1;
+    } else if (event.key == "k") {
+      grid_height -= 1;
+    } else if (event.key == "l") {
+      grid_width += 1;
     }
-    cell_size = 500 / grid_size;
+    cell_size = canvas_size / Math.max(grid_width, grid_height);
 
-    if (state.length < grid_size) {
+    if (state.length < grid_height) {
       var new_row = []
-      for (var i = 0; i < grid_size; i += 1) {
+      for (var i = 0; i < grid_width; i += 1) {
         new_row.push("e");
       }
       state.push(new_row);
     }
 
-    for (var i = 0; i < grid_size; i += 1) {
-      while (state[i].length < grid_size) {
+    for (var i = 0; i < grid_height; i += 1) {
+      while (state[i].length < grid_width) {
         state[i].push("e");
       }
     }
@@ -91,7 +99,7 @@ function on_key(event) {
 }
 
 function render() {
-  context.clearRect(0, 0, 500, 500);
+  context.clearRect(0, 0, canvas_size, canvas_size);
   draw_grid(context);
   draw_circles(context);
   draw_paths(context);
@@ -100,8 +108,8 @@ function render() {
 function draw_grid(context) {
   context.strokeStyle = "#000000";
   context.beginPath();
-  for (var x = 0; x < grid_size; x += 1) {
-    for (var y = 0; y < grid_size; y += 1) {
+  for (var x = 0; x < grid_width; x += 1) {
+    for (var y = 0; y < grid_height; y += 1) {
       context.moveTo(
         x * cell_size,
         y * cell_size
@@ -130,14 +138,14 @@ function draw_grid(context) {
 function draw_circles(context) {
   context.strokeStyle = "#000000";
   context.fillStyle = "#000000";
-  for (var x = 0; x < grid_size; x += 1) {
-    for (var y = 0; y < grid_size; y += 1) {
+  for (var x = 0; x < grid_width; x += 1) {
+    for (var y = 0; y < grid_height; y += 1) {
       if (state[y][x] != "e") {
         context.beginPath();
         context.arc(
           x * cell_size + cell_size / 2, 
           y * cell_size + cell_size / 2,
-          cell_size / 2 - 5,
+          cell_size / 2 - cell_size * 0.1,
           0,
           2 * Math.PI,
           false
