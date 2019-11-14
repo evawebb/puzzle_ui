@@ -1,12 +1,12 @@
 var canvas;
 var context;
-var state = [];
-var path_start = null;
-var paths = [];
 var canvas_size = 1000;
 var grid_width = 10;
 var grid_height = 10;
 var cell_size = canvas_size / Math.max(grid_width, grid_height);
+var state = [];
+var paths = [];
+var path_start = null;
 
 function setup() {
   canvas = document.getElementById("puzzle");
@@ -100,12 +100,12 @@ function on_key(event) {
 
 function render() {
   context.clearRect(0, 0, canvas_size, canvas_size);
-  draw_grid(context);
-  draw_circles(context);
-  draw_paths(context);
+  draw_grid();
+  draw_circles();
+  draw_paths();
 }
 
-function draw_grid(context) {
+function draw_grid() {
   context.strokeStyle = "#000000";
   context.beginPath();
   for (var x = 0; x < grid_width; x += 1) {
@@ -135,7 +135,7 @@ function draw_grid(context) {
   context.stroke();
 }
 
-function draw_circles(context) {
+function draw_circles() {
   context.strokeStyle = "#000000";
   context.fillStyle = "#000000";
   for (var x = 0; x < grid_width; x += 1) {
@@ -160,7 +160,7 @@ function draw_circles(context) {
   }
 }
 
-function draw_paths(context) {
+function draw_paths() {
   if (path_start) {
     context.fillStyle = "rgba(255, 0, 0, 0.5)";
     context.fillRect(

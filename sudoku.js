@@ -1,6 +1,6 @@
 var canvas;
 var context;
-var canvas_size = 500;
+var canvas_size = 1000;
 var grid_size = 9;
 var cell_size = canvas_size / grid_size;
 var state = [];
