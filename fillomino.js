@@ -80,13 +80,81 @@ function draw_grid() {
 
 function draw_selector() {
   if (mouse_pos) {
-    var cell_x = (mouse_pos[0] - edge_margin) / cell_size;
-    var cell_y = (mouse_pos[1] - edge_margin) / cell_size;
-    console.log(
-      mouse_pos[0],
-      mouse_pos[1],
-      cell_x,
-      cell_y
-    );
+    var inv_edge_margin = cell_size - edge_margin;
+
+    var cell_x = Math.floor((mouse_pos[0] - edge_margin) / cell_size);
+    var cell_y = Math.floor((mouse_pos[1] - edge_margin) / cell_size);
+    var cell_x_remainder = Math.abs((mouse_pos[0] - edge_margin) % cell_size);
+    var cell_y_remainder = Math.abs((mouse_pos[1] - edge_margin) % cell_size);
+
+    context.fillStyle = "rgba(128, 128, 128, 0.5)";
+    context.beginPath();
+    if (
+      cell_x_remainder <= edge_margin &&
+      edge_margin < cell_y_remainder && cell_y_remainder < inv_edge_margin
+    ) {
+      context.ellipse(
+        cell_x * cell_size + edge_margin,
+        (cell_y + 0.5) * cell_size + edge_margin,
+        edge_margin * 0.5,
+        (cell_size - edge_margin) * 0.5,
+        0,
+        0,
+        2 * Math.PI
+      );
+    } else if (
+      cell_x_remainder >= inv_edge_margin &&
+      edge_margin < cell_y_remainder && cell_y_remainder < inv_edge_margin
+    ) {
+      context.ellipse(
+        (cell_x + 1) * cell_size + edge_margin,
+        (cell_y + 0.5) * cell_size + edge_margin,
+        edge_margin * 0.5,
+        (cell_size - edge_margin) * 0.5,
+        0,
+        0,
+        2 * Math.PI
+      );
+    } else if (
+      edge_margin < cell_x_remainder && cell_x_remainder < inv_edge_margin &&
+      cell_y_remainder <= edge_margin
+    ) {
+      context.ellipse(
+        (cell_x + 0.5) * cell_size + edge_margin,
+        cell_y * cell_size + edge_margin,
+        (cell_size - edge_margin) * 0.5,
+        edge_margin * 0.5,
+        0,
+        0,
+        2 * Math.PI
+      );
+    } else if (
+      edge_margin < cell_x_remainder && cell_x_remainder < inv_edge_margin &&
+      cell_y_remainder >= inv_edge_margin
+    ) {
+      context.ellipse(
+        (cell_x + 0.5) * cell_size + edge_margin,
+        (cell_y + 1) * cell_size + edge_margin,
+        (cell_size - edge_margin) * 0.5,
+        edge_margin * 0.5,
+        0,
+        0,
+        2 * Math.PI
+      );
+    } else if (
+      edge_margin < cell_x_remainder && cell_x_remainder < inv_edge_margin &&
+      edge_margin < cell_y_remainder && cell_y_remainder < inv_edge_margin
+    ) {
+      context.ellipse(
+        (cell_x + 0.5) * cell_size + edge_margin,
+        (cell_y + 0.5) * cell_size + edge_margin,
+        (cell_size - edge_margin) * 0.5,
+        (cell_size - edge_margin) * 0.5,
+        0,
+        0,
+        2 * Math.PI
+      );
+    }
+    context.fill();
   }
 }
