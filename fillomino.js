@@ -131,6 +131,7 @@ function on_mouseup(event) {
 
 function on_key(event) {
   if (event.key == "h" || event.key == "j" || event.key == "k" || event.key == "l") {
+    // Expand the grid
     if (event.key == "h") {
       grid_width -= 1;
     } else if (event.key == "j") {
@@ -142,6 +143,21 @@ function on_key(event) {
     }
     cell_size = (canvas_size - 2 * edge_margin) / Math.max(grid_width, grid_height);
 
+    // Grow the cell state if needed
+    while (cell_state.length < grid_height) {
+      var cell_row = [];
+      for (var x = 0; x < grid_width; x += 1) {
+        cell_row.push("");
+      }
+      cell_state.push(cell_row);
+    }
+    for (var y = 0; y < grid_height; y += 1) {
+      while (cell_state[y].length < grid_width) {
+        cell_state[y].push("");
+      }
+    }
+
+    // Grow the horizontal edge state if needed
     while (edge_state["h"].length < grid_height - 1) {
       var edge_h_row = [];
       for (var x = 0; x < grid_width; x += 1) {
@@ -155,6 +171,7 @@ function on_key(event) {
       }
     }
 
+    // Grow the vertical edge state if needed
     while (edge_state["v"].length < grid_height) {
       var edge_v_row = [];
       for (var x = 0; x < grid_width - 1; x += 1) {
@@ -167,13 +184,32 @@ function on_key(event) {
         edge_state["v"][y].push(false);
       }
     }
-  } else if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "d"].includes(event.key) && selected) {
-    if (event.key == "Delete" || event.key == "d") {
+  } else if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x"].includes(event.key) && selected) {
+    if (event.key == "Delete" || event.key == "x") {
       cell_state[selected[1]][selected[0]] = "";
     } else {
       cell_state[selected[1]][selected[0]] = event.key;
     }
-    selected = null;
+  } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key) && selected) {
+    if (event.key == "ArrowUp" && selected[1] > 0) {
+      selected[1] -= 1;
+    } else if (event.key == "ArrowDown" && selected[1] < grid_height - 1) {
+      selected[1] += 1;
+    } else if (event.key == "ArrowLeft" && selected[0] > 0) {
+      selected[0] -= 1;
+    } else if (event.key == "ArrowRight" && selected[0] < grid_width - 1) {
+      selected[0] += 1;
+    }
+  } else if (["w", "a", "s", "d"].includes(event.key) && selected) {
+    if (event.key == "w" && selected[1] > 0) {
+      edge_state["h"][selected[1] - 1][selected[0]] = !edge_state["h"][selected[1] - 1][selected[0]];
+    } else if (event.key == "a" && selected[0] > 0) {
+      edge_state["v"][selected[1]][selected[0] - 1] = !edge_state["v"][selected[1]][selected[0] - 1];
+    } else if (event.key == "s" && selected[1] < grid_height - 1) {
+      edge_state["h"][selected[1]][selected[0]] = !edge_state["h"][selected[1]][selected[0]];
+    } else if (event.key == "d" && selected[0] < grid_width - 1) {
+      edge_state["v"][selected[1]][selected[0]] = !edge_state["v"][selected[1]][selected[0]];
+    }
   }
 
   render();
@@ -181,10 +217,22 @@ function on_key(event) {
 
 function render() {
   context.clearRect(0, 0, canvas_size, canvas_size);
+  draw_selected();
   draw_grid();
   draw_numbers();
   draw_selector();
-  draw_selected();
+}
+
+function draw_selected() {
+  if (selected) {
+    context.fillStyle = "rgba(0, 255, 0, 0.5)";
+    context.fillRect(
+      selected[0] * cell_size + edge_margin,
+      selected[1] * cell_size + edge_margin,
+      cell_size,
+      cell_size
+    );
+  }
 }
 
 function draw_single_edge(x1, y1, x2, y2, dark = false) {
@@ -287,23 +335,6 @@ function draw_selector() {
     }
 
     context.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-    context.fill();
-  }
-}
-
-function draw_selected() {
-  if (selected) {
-    context.fillStyle = "rgba(0, 255, 0, 0.5)";
-    context.beginPath();
-    context.ellipse(
-      (selected[0] + 0.5) * cell_size + edge_margin,
-      (selected[1] + 0.5) * cell_size + edge_margin,
-      (cell_size - edge_margin) * 0.5,
-      (cell_size - edge_margin) * 0.5,
-      0,
-      0,
-      2 * Math.PI
-    );
     context.fill();
   }
 }
