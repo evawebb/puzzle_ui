@@ -51,6 +51,10 @@ function setup() {
 
 // TODO: the overlap between edge regions is awkward
 
+// TODO: sometimes the selector doesn't go away when leaving the board
+
+// TODO: undo
+
 function on_mousemove(event) {
   var x = event.pageX - canvas.offsetLeft;
   var y = event.pageY - canvas.offsetTop;
