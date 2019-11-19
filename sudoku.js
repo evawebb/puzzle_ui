@@ -2,13 +2,16 @@ var canvas;
 var context;
 var canvas_size = 1000;
 var grid_size = 9;
-var cell_size = canvas_size / grid_size;
+var edge_margin_multiplier = 0.2;
+var edge_margin = canvas_size / grid_size * edge_margin_multiplier;
+var cell_size = (canvas_size - 2 * edge_margin) / grid_size;
 var state = [];
 var locks = [];
 var notes = [];
 var mouse_is_down = false;
 var selected = [];
 var setting = false;
+var edges = {};
 
 function setup() {
   canvas = document.getElementById("puzzle");
@@ -22,6 +25,13 @@ function setup() {
       state_row.push([]);
       lock_row.push(false);
       note_row.push(false);
+
+      if (y == 3 || y == 6) {
+        toggle_edge_state(edges, x, y, 1);
+      }
+      if (x == 3 || x == 6) {
+        toggle_edge_state(edges, x, y, 2);
+      }
     }
     state.push(state_row);
     locks.push(lock_row);
@@ -115,83 +125,24 @@ function on_key(event) {
 function render() {
   context.clearRect(0, 0, canvas_size, canvas_size);
   draw_highlight();
-  draw_grid();
+  draw_grid(grid_size, grid_size, edge_margin, edges);
   draw_numbers();
 }
 
 function draw_highlight() {
   if (setting) {
-    context.fillStyle = "#e0e0ff";
+    context.fillStyle = "#e8ffff";
     context.fillRect(0, 0, canvas_size, canvas_size);
   }
   for (var i = 0; i < selected.length; i += 1) {
     context.fillStyle = "#a0ffa0";
     context.fillRect(
-      selected[i][0] * cell_size,
-      selected[i][1] * cell_size,
+      selected[i][0] * cell_size + edge_margin,
+      selected[i][1] * cell_size + edge_margin,
       cell_size,
       cell_size
     );
   }
-}
-
-function draw_grid() {
-  context.strokeStyle = "#c0c0c0";
-  context.beginPath();
-  for (var x = 0; x < grid_size; x += 1) {
-    for (var y = 0; y < grid_size; y += 1) {
-      context.moveTo(
-        x * cell_size,
-        y * cell_size
-      );
-      context.lineTo(
-        (x + 1) * cell_size - 1,
-        y * cell_size
-      );
-      context.lineTo(
-        (x + 1) * cell_size - 1,
-        (y + 1) * cell_size - 1
-      );
-      context.lineTo(
-        x * cell_size,
-        (y + 1) * cell_size - 1
-      );
-      context.lineTo(
-        x * cell_size,
-        y * cell_size
-      );
-    }
-  }
-  context.stroke();
-
-  context.strokeStyle = "#000000";
-  context.beginPath();
-  var region_size = cell_size * 3;
-  for (var x = 0; x < grid_size / 3; x += 1) {
-    for (var y = 0; y < grid_size / 3; y += 1) {
-      context.moveTo(
-        x * region_size,
-        y * region_size
-      );
-      context.lineTo(
-        (x + 1) * region_size - 1,
-        y * region_size
-      );
-      context.lineTo(
-        (x + 1) * region_size - 1,
-        (y + 1) * region_size - 1
-      );
-      context.lineTo(
-        x * region_size,
-        (y + 1) * region_size - 1
-      );
-      context.lineTo(
-        x * region_size,
-        y * region_size
-      );
-    }
-  }
-  context.stroke();
 }
 
 function draw_numbers() {
@@ -242,14 +193,14 @@ function draw_numbers() {
           if (!notes[y][x]) {
             context.fillText(
               text[i],
-              (x + 0.5) * cell_size,
-              (y + ((i + 1) / (text.length + 1))) * cell_size
+              (x + 0.5) * cell_size + edge_margin,
+              (y + ((i + 1) / (text.length + 1))) * cell_size + edge_margin
             );
           } else {
             context.fillText(
               text[i],
-              (x + 0.02) * cell_size,
-              (y + (i / 3) + 0.02) * cell_size
+              (x + 0.02) * cell_size + edge_margin,
+              (y + (i / 3) + 0.02) * cell_size + edge_margin
             );
           }
         }

@@ -6,7 +6,6 @@ var grid_height = 10;
 var edge_margin_multiplier = 0.2;
 var edge_margin = canvas_size / Math.max(grid_width, grid_height) * edge_margin_multiplier;
 var cell_size = (canvas_size - 2 * edge_margin) / Math.max(grid_width, grid_height);
-var edge_width = 4;
 
 var cell_state = [];
 var edge_state = {};
@@ -40,16 +39,6 @@ function on_mouseup(event) {
   selected = [cell_x, cell_y];
 
   render();
-}
-
-function toggle_edge_state(x, y, direction) {
-  if (!edge_state[x]) {
-    edge_state[x] = {};
-  }
-  if (!edge_state[x][y]) {
-    edge_state[x][y] = 0;
-  }
-  edge_state[x][y] = edge_state[x][y] ^ direction;
 }
 
 function on_key(event) {
@@ -109,13 +98,13 @@ function on_key(event) {
     }
   } else if (["w", "a", "s", "d"].includes(event.key) && selected) {
     if (event.key == "w" && selected[1] > 0) {
-      toggle_edge_state(selected[0], selected[1], 1);
+      toggle_edge_state(edge_state, selected[0], selected[1], 1);
     } else if (event.key == "a" && selected[0] > 0) {
-      toggle_edge_state(selected[0], selected[1], 2);
+      toggle_edge_state(edge_state, selected[0], selected[1], 2);
     } else if (event.key == "s" && selected[1] < grid_height - 1) {
-      toggle_edge_state(selected[0], selected[1] + 1, 1);
+      toggle_edge_state(edge_state, selected[0], selected[1] + 1, 1);
     } else if (event.key == "d" && selected[0] < grid_width - 1) {
-      toggle_edge_state(selected[0] + 1, selected[1], 2);
+      toggle_edge_state(edge_state, selected[0] + 1, selected[1], 2);
     }
   }
 
@@ -125,7 +114,7 @@ function on_key(event) {
 function render() {
   context.clearRect(0, 0, canvas_size, canvas_size);
   draw_selected();
-  draw_grid(grid_width, grid_height, edge_state);
+  draw_grid(grid_width, grid_height, edge_margin, edge_state);
   draw_numbers();
 }
 
