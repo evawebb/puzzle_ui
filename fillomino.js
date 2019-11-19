@@ -30,12 +30,6 @@ function setup() {
   render();
 }
 
-// TODO: why does cell->edge seem to trigger too far out?
-
-// TODO: the overlap between edge regions is awkward
-
-// TODO: sometimes the selector doesn't go away when leaving the board
-
 // TODO: undo
 
 function on_mouseup(event) {
@@ -85,9 +79,21 @@ function on_key(event) {
         cell_state[y].push("");
       }
     }
-  } else if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x"].includes(event.key) && selected) {
+  } else if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x", "t", "T"].includes(event.key) && selected) {
     if (event.key == "Delete" || event.key == "x") {
       cell_state[selected[1]][selected[0]] = "";
+    } else if (event.key == "t") {
+      if (cell_state[selected[1]][selected[0]] == "") {
+        cell_state[selected[1]][selected[0]] = "10";
+      } else {
+        cell_state[selected[1]][selected[0]] = 10 + parseInt(cell_state[selected[1]][selected[0]]);
+      }
+    } else if (event.key == "T") {
+      if (parseInt(cell_state[selected[1]][selected[0]]) == 10) {
+        cell_state[selected[1]][selected[0]] = "";
+      } else if (parseInt(cell_state[selected[1]][selected[0]]) > 10) {
+        cell_state[selected[1]][selected[0]] = parseInt(cell_state[selected[1]][selected[0]]) - 10;
+      }
     } else {
       cell_state[selected[1]][selected[0]] = event.key;
     }
