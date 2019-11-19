@@ -42,12 +42,12 @@ function draw_single_edge(x1, y1, x2, y2, dark = false) {
 //
 // +  +  +  +
 
-function draw_grid_util(width, height, dark_edges = {}) {
+function draw_grid(width, height, dark_edges = {}) {
   for (var y = 0; y < height; y += 1) {
     for (var x = 0; x < width; x += 1) {
       var cell_dark_edges = 0;
-      if (dark_edges[y] && dark_edges[y][x]) {
-        cell_dark_edges = dark_edges[y][x];
+      if (dark_edges[x] && dark_edges[x][y]) {
+        cell_dark_edges = dark_edges[x][y];
       }
 
       if (cell_dark_edges == 0 || cell_dark_edges == 2) {
@@ -55,6 +55,17 @@ function draw_grid_util(width, height, dark_edges = {}) {
       }
       if (cell_dark_edges == 0 || cell_dark_edges == 1) {
         draw_single_edge(x, y, x, y + 1);
+      }
+    }
+  }
+
+  for (x in dark_edges) {
+    for (y in dark_edges[x]) {
+      if (dark_edges[x][y] == 1 || dark_edges[x][y] == 3) {
+        draw_single_edge(x, y, parseInt(x) + 1, y, true);
+      } 
+      if (dark_edges[x][y] == 2 || dark_edges[x][y] == 3) {
+        draw_single_edge(x, y, x, parseInt(y) + 1, true);
       }
     }
   }

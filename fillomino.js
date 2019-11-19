@@ -105,8 +105,11 @@ function on_key(event) {
     if (event.key == "w" && selected[1] > 0) {
       toggle_edge_state(selected[0], selected[1], 1);
     } else if (event.key == "a" && selected[0] > 0) {
+      toggle_edge_state(selected[0], selected[1], 2);
     } else if (event.key == "s" && selected[1] < grid_height - 1) {
+      toggle_edge_state(selected[0], selected[1] + 1, 1);
     } else if (event.key == "d" && selected[0] < grid_width - 1) {
+      toggle_edge_state(selected[0] + 1, selected[1], 2);
     }
   }
 
@@ -116,7 +119,7 @@ function on_key(event) {
 function render() {
   context.clearRect(0, 0, canvas_size, canvas_size);
   draw_selected();
-  draw_grid();
+  draw_grid(grid_width, grid_height, edge_state);
   draw_numbers();
 }
 
@@ -130,10 +133,6 @@ function draw_selected() {
       cell_size
     );
   }
-}
-
-function draw_grid() {
-  draw_grid_util(grid_width, grid_height, edge_state);
 }
 
 function draw_numbers() {
