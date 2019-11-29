@@ -36,6 +36,20 @@ function min_cell_size(grid_def_obj) {
   );
 }
 
+function set_edge_state(edge_state, x, y, direction, dark) {
+  if (!edge_state[x]) {
+    edge_state[x] = {};
+  } 
+  if (!edge_state[x][y]) {
+    edge_state[x][y] = 0;
+  }
+  if (dark) {
+    edge_state[x][y] = edge_state[x][y] | direction;
+  } else {
+    edge_state[x][y] = (edge_state[x][y] | direction) - direction;
+  }
+}
+
 function toggle_edge_state(edge_state, x, y, direction) {
   if (!edge_state[x]) {
     edge_state[x] = {};
