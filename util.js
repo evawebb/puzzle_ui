@@ -29,6 +29,13 @@ function cell_height(grid_def_obj) {
   );
 }
 
+function min_cell_size(grid_def_obj) {
+  return Math.min(
+    cell_width(grid_def_obj),
+    cell_height(grid_def_obj)
+  );
+}
+
 function toggle_edge_state(edge_state, x, y, direction) {
   if (!edge_state[x]) {
     edge_state[x] = {};
@@ -47,10 +54,10 @@ function draw_single_edge(x1, y1, x2, y2, grid_def_obj, dark = false) {
   }
 
   context.fillRect(
-    (x1 * cell_width(grid_def_obj)) - (grid_def_obj.edge_width * 0.5) + edge_margin(grid_def_obj),
-    (y1 * cell_height(grid_def_obj)) - (grid_def_obj.edge_width * 0.5) + edge_margin(grid_def_obj),
-    ((x2 - x1) * cell_width(grid_def_obj)) + grid_def_obj.edge_width,
-    ((y2 - y1) * cell_height(grid_def_obj)) + grid_def_obj.edge_width
+    (x1 * min_cell_size(grid_def_obj)) - (grid_def_obj.edge_width * 0.5) + edge_margin(grid_def_obj),
+    (y1 * min_cell_size(grid_def_obj)) - (grid_def_obj.edge_width * 0.5) + edge_margin(grid_def_obj),
+    ((x2 - x1) * min_cell_size(grid_def_obj)) + grid_def_obj.edge_width,
+    ((y2 - y1) * min_cell_size(grid_def_obj)) + grid_def_obj.edge_width
   );
 }
 
@@ -121,18 +128,18 @@ function draw_selection(grid_def_obj, selection_obj) {
   context.fillStyle = "#a0ffa0";
   for (var i = 0; i < selection_obj.cells.length; i += 1) {
     context.fillRect(
-      selection.cells[i][0] * cell_width(grid_def_obj) + edge_margin(grid_def_obj),
-      selection.cells[i][1] * cell_height(grid_def_obj) + edge_margin(grid_def_obj),
-      cell_width(grid_def_obj),
-      cell_height(grid_def_obj)
+      selection.cells[i][0] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
+      selection.cells[i][1] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
+      min_cell_size(grid_def_obj),
+      min_cell_size(grid_def_obj)
     );
   }
 }
 
 function block_select_mousedown(event, grid_def_obj, selection_obj, render_fn) {
   selection_obj.down = true;
-  var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / cell_width(grid_def_obj));
-  var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / cell_height(grid_def_obj));
+  var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
+  var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
   if (
     x >= 0 &&
     x < grid_def_obj.grid_width &&
@@ -147,8 +154,8 @@ function block_select_mousedown(event, grid_def_obj, selection_obj, render_fn) {
 
 function block_select_mousemove(event, grid_def_obj, selection_obj, render_fn) {
   if (selection_obj.down) {
-    var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / cell_width(grid_def_obj));
-    var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / cell_height(grid_def_obj));
+    var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
+    var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
     if (
       x >= 0 &&
       x < grid_def_obj.grid_width &&
@@ -160,9 +167,9 @@ function block_select_mousemove(event, grid_def_obj, selection_obj, render_fn) {
     ) {
       selection_obj.cells.push([x, y]);
     }
-  }
 
-  render_fn();
+    render_fn();
+  }
 }
 
 function block_select_mouseup(event, grid_def_obj, selection_obj, render_fn) {
@@ -171,3 +178,44 @@ function block_select_mouseup(event, grid_def_obj, selection_obj, render_fn) {
   render_fn();
 }
 
+function single_select_mousedown(event, grid_def_obj, selection_obj, render_fn) {
+  selection_obj.down = true;
+  var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
+  var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
+  if (
+    x >= 0 &&
+    x < grid_def_obj.grid_width &&
+    y >= 0 &&
+    y < grid_def_obj.grid_height
+  ) {
+    selection_obj.cells = [[x, y]];
+  }
+
+  render_fn();
+}
+
+function single_select_mousemove(event, grid_def_obj, selection_obj, render_fn) {
+  if (selection_obj.down) {
+    var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
+    var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
+    if (
+      x >= 0 &&
+      x < grid_def_obj.grid_width &&
+      y >= 0 &&
+      y < grid_def_obj.grid_height &&
+      selection_obj.cells.filter(function(p) { 
+        return p[0] == x && p[1] == y; 
+      }).length == 0
+    ) {
+      selection_obj.cells = [[x, y]];
+    }
+
+    render_fn();
+  }
+}
+
+function single_select_mouseup(event, grid_def_obj, selection_obj, render_fn) {
+  selection_obj.down = false;
+
+  render_fn();
+}
