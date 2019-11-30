@@ -78,31 +78,17 @@ function setup() {
 }
 
 function on_key(event) {
-  if (event.key == "h" || event.key == "j" || event.key == "k" || event.key == "l") {
-    if (event.key == "h") {
-      grid_def.grid_width -= 1;
-    } else if (event.key == "j") {
-      grid_def.grid_height += 1;
-    } else if (event.key == "k") {
-      grid_def.grid_height -= 1;
-    } else if (event.key == "l") {
-      grid_def.grid_width += 1;
-    }
+  expand_grid(
+    event,
+    grid_def,
+    [{
+      obj: state,
+      default: "e"
+    }],
+    render
+  );
 
-    if (state.length < grid_def.grid_height) {
-      var new_row = []
-      for (var i = 0; i < grid_def.grid_width; i += 1) {
-        new_row.push("e");
-      }
-      state.push(new_row);
-    }
-
-    for (var i = 0; i < grid_def.grid_height; i += 1) {
-      while (state[i].length < grid_def.grid_width) {
-        state[i].push("e");
-      }
-    }
-  } else if (event.key == "u" || event.key == "U") {
+  if (event.key == "u" || event.key == "U") {
     paths.pop();
   }
 

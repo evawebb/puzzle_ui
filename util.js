@@ -122,12 +122,16 @@ function draw_grid(grid_def_obj, dark_edges = {}) {
   }
 
   for (x in dark_edges) {
-    for (y in dark_edges[x]) {
-      if (dark_edges[x][y] == 1 || dark_edges[x][y] == 3) {
-        draw_single_edge(x, y, parseInt(x) + 1, y, grid_def_obj, true);
-      } 
-      if (dark_edges[x][y] == 2 || dark_edges[x][y] == 3) {
-        draw_single_edge(x, y, x, parseInt(y) + 1, grid_def_obj, true);
+    if (x >= 0 && x < grid_def_obj.grid_width) {
+      for (y in dark_edges[x]) {
+        if (y >= 0 && y < grid_def_obj.grid_height) {
+          if (dark_edges[x][y] == 1 || dark_edges[x][y] == 3) {
+            draw_single_edge(x, y, parseInt(x) + 1, y, grid_def_obj, true);
+          } 
+          if (dark_edges[x][y] == 2 || dark_edges[x][y] == 3) {
+            draw_single_edge(x, y, x, parseInt(y) + 1, grid_def_obj, true);
+          }
+        }
       }
     }
   }
@@ -232,4 +236,48 @@ function single_select_mouseup(event, grid_def_obj, selection_obj, render_fn) {
   selection_obj.down = false;
 
   render_fn();
+}
+
+// The state_objs parameter should be in the following format:
+// [
+//   ...,
+//   {
+//     obj: <a row-major 2d array>,
+//     default: <the default value to insert in all the new cells>
+//   },
+//   ...
+// ]
+
+function expand_grid(event, grid_def_obj, state_objs, render_fn) {
+  if (event.key == "h" || event.key == "j" || event.key == "k" || event.key == "l") {
+    if (event.key == "h") {
+      grid_def_obj.grid_width -= 1;
+    } else if (event.key == "j") {
+      grid_def_obj.grid_height += 1;
+    } else if (event.key == "k") {
+      grid_def_obj.grid_height -= 1;
+    } else if (event.key == "l") {
+      grid_def_obj.grid_width += 1;
+    }
+
+    for (var i = 0; i < state_objs.length; i += 1) {
+      var so = state_objs[i];
+
+      while (so.obj.length < grid_def_obj.grid_height) {
+        var new_row = [];
+        for (var j = 0; j < grid_def_obj.grid_width; j += 1) {
+          new_row.push(so.default);
+        }
+        so.obj.push(new_row);
+      }
+
+      for (var j = 0; j < grid_def_obj.grid_height; j += 1) {
+        while (so.obj[j].length < grid_def_obj.grid_width) {
+          so.obj[j].push(so.default);
+        }
+      }
+    }
+
+    render_fn();
+  }
 }

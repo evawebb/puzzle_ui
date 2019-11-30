@@ -1,11 +1,13 @@
 var canvas;
 var context;
-var canvas_size = 1000;
-var grid_width = 10;
-var grid_height = 10;
-var edge_margin_multiplier = 0.2;
-var edge_margin = canvas_size / Math.max(grid_width, grid_height) * edge_margin_multiplier;
-var cell_size = (canvas_size - 2 * edge_margin) / Math.max(grid_width, grid_height);
+
+var grid_def = {
+  canvas_size: 1000,
+  grid_width: 10,
+  grid_height: 10,
+  edge_margin_multiplier: 0.2,
+  edge_width: 4
+};
 
 var cell_state = [];
 var edge_state = {};
@@ -26,15 +28,14 @@ function setup() {
       puzzle_from_csv[i] = puzzle_from_csv[i].split(",");
     }
 
-    grid_height = puzzle_from_csv.length;
-    grid_width = puzzle_from_csv[0].length;
-    cell_size = (canvas_size - 2 * edge_margin) / Math.max(grid_width, grid_height);
+    grid_def.grid_height = puzzle_from_csv.length;
+    grid_def.grid_width = puzzle_from_csv[0].length;
   }
 
 
-  for (var y = 0; y < grid_height; y += 1) {
+  for (var y = 0; y < grid_def.grid_height; y += 1) {
     var cell_row = [];
-    for (var x = 0; x < grid_width; x += 1) {
+    for (var x = 0; x < grid_def.grid_width; x += 1) {
       if (puzzle_csv) {
         cell_row.push(puzzle_from_csv[y][x]);
       } else {
@@ -52,41 +53,25 @@ function setup() {
 function on_mouseup(event) {
   var x = event.pageX - canvas.offsetLeft;
   var y = event.pageY - canvas.offsetTop;
-  var cell_x = Math.floor((x - edge_margin) / cell_size);
-  var cell_y = Math.floor((y - edge_margin) / cell_size);
+  var cell_x = Math.floor((x - edge_margin(grid_def)) / min_cell_size(grid_def));
+  var cell_y = Math.floor((y - edge_margin(grid_def)) / min_cell_size(grid_def));
   selected = [cell_x, cell_y];
 
   render();
 }
 
 function on_key(event) {
-  if (event.key == "h" || event.key == "j" || event.key == "k" || event.key == "l") {
-    // Expand the grid
-    if (event.key == "h") {
-      grid_width -= 1;
-    } else if (event.key == "j") {
-      grid_height += 1;
-    } else if (event.key == "k") {
-      grid_height -= 1;
-    } else if (event.key == "l") {
-      grid_width += 1;
-    }
-    cell_size = (canvas_size - 2 * edge_margin) / Math.max(grid_width, grid_height);
+  expand_grid(
+    event,
+    grid_def,
+    [{
+      obj: cell_state,
+      default: ""
+    }],
+    render
+  );
 
-    // Grow the cell state if needed
-    while (cell_state.length < grid_height) {
-      var cell_row = [];
-      for (var x = 0; x < grid_width; x += 1) {
-        cell_row.push("");
-      }
-      cell_state.push(cell_row);
-    }
-    for (var y = 0; y < grid_height; y += 1) {
-      while (cell_state[y].length < grid_width) {
-        cell_state[y].push("");
-      }
-    }
-  } else if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x", "t", "T"].includes(event.key) && selected) {
+  if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x", "t", "T"].includes(event.key) && selected) {
     if (event.key == "Delete" || event.key == "x") {
       cell_state[selected[1]][selected[0]] = "";
     } else if (event.key == "t") {
@@ -107,11 +92,11 @@ function on_key(event) {
   } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key) && selected) {
     if (event.key == "ArrowUp" && selected[1] > 0) {
       selected[1] -= 1;
-    } else if (event.key == "ArrowDown" && selected[1] < grid_height - 1) {
+    } else if (event.key == "ArrowDown" && selected[1] < grid_def.grid_height - 1) {
       selected[1] += 1;
     } else if (event.key == "ArrowLeft" && selected[0] > 0) {
       selected[0] -= 1;
-    } else if (event.key == "ArrowRight" && selected[0] < grid_width - 1) {
+    } else if (event.key == "ArrowRight" && selected[0] < grid_def.grid_width - 1) {
       selected[0] += 1;
     }
   } else if (["w", "a", "s", "d"].includes(event.key) && selected) {
@@ -119,9 +104,9 @@ function on_key(event) {
       toggle_edge_state(edge_state, selected[0], selected[1], 1);
     } else if (event.key == "a" && selected[0] > 0) {
       toggle_edge_state(edge_state, selected[0], selected[1], 2);
-    } else if (event.key == "s" && selected[1] < grid_height - 1) {
+    } else if (event.key == "s" && selected[1] < grid_def.grid_height - 1) {
       toggle_edge_state(edge_state, selected[0], selected[1] + 1, 1);
-    } else if (event.key == "d" && selected[0] < grid_width - 1) {
+    } else if (event.key == "d" && selected[0] < grid_def.grid_width - 1) {
       toggle_edge_state(edge_state, selected[0] + 1, selected[1], 2);
     }
   }
@@ -130,9 +115,9 @@ function on_key(event) {
 }
 
 function render() {
-  context.clearRect(0, 0, canvas_size, canvas_size);
+  context.clearRect(0, 0, grid_def.canvas_size, grid_def.canvas_size);
   draw_selected();
-  draw_grid(grid_width, grid_height, edge_margin, edge_state);
+  draw_grid(grid_def, edge_state);
   draw_numbers();
 }
 
@@ -140,25 +125,25 @@ function draw_selected() {
   if (selected) {
     context.fillStyle = "rgba(0, 255, 0, 0.5)";
     context.fillRect(
-      selected[0] * cell_size + edge_margin,
-      selected[1] * cell_size + edge_margin,
-      cell_size,
-      cell_size
+      selected[0] * min_cell_size(grid_def) + edge_margin(grid_def),
+      selected[1] * min_cell_size(grid_def) + edge_margin(grid_def),
+      min_cell_size(grid_def),
+      min_cell_size(grid_def)
     );
   }
 }
 
 function draw_numbers() {
-  context.font = "" + Math.floor(cell_size * 0.8) + "px serif";
+  context.font = "" + Math.floor(min_cell_size(grid_def) * 0.8) + "px serif";
   context.fillStyle = "#000000";
   context.textAlign = "center";
   context.textBaseline = "middle";
-  for (var y = 0; y < grid_height; y += 1) {
-    for (var x = 0; x < grid_width; x += 1) {
+  for (var y = 0; y < grid_def.grid_height; y += 1) {
+    for (var x = 0; x < grid_def.grid_width; x += 1) {
       context.fillText(
         cell_state[y][x],
-        ((x + 0.5) * cell_size) + edge_margin,
-        ((y + 0.5) * cell_size) + edge_margin
+        ((x + 0.5) * min_cell_size(grid_def)) + edge_margin(grid_def),
+        ((y + 0.5) * min_cell_size(grid_def)) + edge_margin(grid_def)
       );
     }
   }

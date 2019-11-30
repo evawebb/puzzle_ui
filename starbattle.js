@@ -44,16 +44,26 @@ function setup() {
 }
 
 function on_key(event) {
-  var selected_cells_lookup = {};
-  for (var i = 0; i < selection.cells.length; i += 1) {
-    if (!selected_cells_lookup[selection.cells[i][0]]) {
-      selected_cells_lookup[selection.cells[i][0]] = {};
-    }
-    selected_cells_lookup[selection.cells[i][0]][selection.cells[i][1]] = true;
-  }
+  expand_grid(
+    event,
+    grid_def,
+    [{
+      obj: state,
+      default: ""
+    }],
+    render
+  );
 
   var deltas = [[-1, 0], [0, -1], [0, 1], [1, 0]];
   if (selection.cells.length > 0) { 
+    var selected_cells_lookup = {};
+    for (var i = 0; i < selection.cells.length; i += 1) {
+      if (!selected_cells_lookup[selection.cells[i][0]]) {
+        selected_cells_lookup[selection.cells[i][0]] = {};
+      }
+      selected_cells_lookup[selection.cells[i][0]][selection.cells[i][1]] = true;
+    }
+
     for (var i = 0; i < selection.cells.length; i += 1) {
       var x = selection.cells[i][0];
       var y = selection.cells[i][1];
