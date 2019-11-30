@@ -281,3 +281,44 @@ function expand_grid(event, grid_def_obj, state_objs, render_fn) {
     render_fn();
   }
 }
+
+function init_state(state_obj, grid_def_obj, default_value) {
+  for (var y = 0; y < grid_def.grid_height; y += 1) {
+    var state_row = [];
+    for (var x = 0; x < grid_def.grid_width; x += 1) {
+      state_row.push(default_value);
+    }
+    state_obj.grid.push(state_row);
+  }
+}
+
+function set_state(state_obj, coords, new_value) {
+  var history_entry = {
+    coords: coords,
+    old_values: [],
+    new_values: []
+  };
+
+  for (var i = 0; i < coords.length; i += 1) {
+    var coord = coords[i];
+    var x = coord[0];
+    var y = coord[1];
+
+    history_entry.old_values.push(state_obj.grid[y][x]);
+    history_entry.new_values.push(new_value);
+
+    state_obj.grid[y][x] = new_value;
+  }
+
+  state_obj.history.push(history_entry);
+}
+
+function undo(state_obj) {
+  if (state_obj.history.length > 0) {
+    var last_history_entry = state_obj.history.pop();
+    for (var i = 0; i < last_history_entry.coords.length; i += 1) {
+      var coord = last_history_entry.coords[i];
+      state_obj.grid[coord[1]][coord[0]] = last_history_entry.old_values[i];
+    }
+  }
+}
