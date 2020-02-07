@@ -6,6 +6,7 @@
       var canvas;
       var context;
       var master_canvas_size = 500;
+      var p;
 
       function presetup() {
         canvas = document.getElementById("puzzle");
@@ -20,7 +21,7 @@
     <script type="text/javascript">
       function load(puzzle) {
         if (puzzle == "fillomino") {
-          fillomino_setup();
+          p = new Fillomino();
         } else if (puzzle == "masyu") {
           masyu_setup();
         } else if (puzzle == "starbattle") {
