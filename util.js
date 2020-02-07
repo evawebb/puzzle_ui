@@ -82,8 +82,8 @@ function draw_single_edge(x1, y1, x2, y2, grid_def_obj, dark = false) {
 // The edge starts in the top left corner of the cell (cell_x, cell_y)
 // The possible values for direction are:
 // - 0: none (this is assumed if the key isn't present)
-// - 1: horizontal (right) only
-// - 2: vertical (down) only
+// - 1: vertical (up) only
+// - 2: horizontal (left) only
 // - 3: both horizontal and vertical
 //
 // Here's an example:

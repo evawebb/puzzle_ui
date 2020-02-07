@@ -27,8 +27,6 @@ class Fillomino {
   on_mouseup(event) {
     var x = event.pageX - canvas.offsetLeft;
     var y = event.pageY - canvas.offsetTop;
-    console.log(this);
-    console.log(this.grid_def);
     var cell_x = Math.floor((x - edge_margin(this.grid_def)) / min_cell_size(this.grid_def));
     var cell_y = Math.floor((y - edge_margin(this.grid_def)) / min_cell_size(this.grid_def));
     this.selected = [cell_x, cell_y];
@@ -44,7 +42,7 @@ class Fillomino {
         obj: this.cell_state,
         default: ""
       }],
-      this.render
+      this.render.bind(this)
     );
 
     if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x", "t", "T"].includes(event.key) && this.selected) {
@@ -90,11 +88,59 @@ class Fillomino {
     this.render();
   }
 
+  on_csv_change(event) {
+    this.cell_state = [];
+    this.edge_state = {};
+    this.selected = null;
+
+    const csv = event.target.value;
+    const csv_rows = csv.split("\n");
+    this.grid_def.grid_height = 0;
+    for (var r = 0; r < csv_rows.length; r += 1) {
+      if (csv_rows[r].length > 0) {
+        const csv_vals = csv_rows[r].split(",");
+        const state_row = [];
+        for (var c = 0; c < csv_vals.length; c += 1) {
+          state_row.push(csv_vals[c]);
+        }
+        this.cell_state.push(state_row);
+
+        this.grid_def.grid_height += 1;
+        this.grid_def.grid_width = csv_vals.length;
+      }
+    }
+
+    for (var y = 0; y < this.grid_def.grid_height; y += 1) {
+      for (var x = 0; x < this.grid_def.grid_width; x += 1) {
+        if (
+          y > 0 &&
+          this.cell_state[y][x] != this.cell_state[y - 1][x] && 
+          this.cell_state[y][x] != "" &&
+          this.cell_state[y - 1][x] != ""
+        ) {
+          toggle_edge_state(this.edge_state, x, y, 1);
+        }
+
+        if (
+          x > 0 &&
+          this.cell_state[y][x] != this.cell_state[y][x - 1] && 
+          this.cell_state[y][x] != "" && 
+          this.cell_state[y][x - 1] != ""
+        ) {
+          toggle_edge_state(this.edge_state, x, y, 2);
+        }
+      }
+    }
+
+    this.render();
+  }
+
   render() {
     context.clearRect(0, 0, this.grid_def.canvas_size, this.grid_def.canvas_size);
     this.draw_selected();
     draw_grid(this.grid_def, this.edge_state);
     this.draw_numbers();
+    this.output_csv();
   }
 
   draw_selected() {
@@ -123,5 +169,21 @@ class Fillomino {
         );
       }
     }
+  }
+
+  output_csv() {
+    var csv_out = "";
+    for (var y = 0; y < this.grid_def.grid_height; y += 1) {
+      for (var x = 0; x < this.grid_def.grid_width; x += 1) {
+        csv_out += this.cell_state[y][x];
+
+        if (x != this.grid_def.grid_width - 1) {
+          csv_out += ",";
+        }
+      }
+      csv_out += "\n";
+    }
+
+    csv.value = csv_out;
   }
 }
