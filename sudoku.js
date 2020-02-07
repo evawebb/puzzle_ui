@@ -1,70 +1,62 @@
-var canvas;
-var context;
-
-var grid_def = {
-  canvas_size: 1000,
+var sudoku_grid_def = {
+  canvas_size: master_canvas_size,
   grid_width: 9,
   grid_height: 9,
   edge_margin_multiplier: 0.2,
   edge_width: 4
 };
 
-var selection = {
+var sudoku_selection = {
   cells: [],
   down: false
 };
 
-var state = [];
-var locks = [];
-var notes = [];
-var mouse_is_down = false;
-var selected = [];
-var edges = {};
+var sudoku_state = [];
+var sudoku_locks = [];
+var sudoku_notes = [];
+var sudoku_edges = {};
 
-function setup() {
-  canvas = document.getElementById("puzzle");
-  context = canvas.getContext("2d");
-
-  for (var y = 0; y < grid_def.grid_height; y += 1) {
+function sudoku_setup() {
+  for (var y = 0; y < sudoku_grid_def.grid_height; y += 1) {
     var state_row = [];
     var lock_row = []
     var note_row = [];
-    for (var x = 0; x < grid_def.grid_width; x += 1) {
+    for (var x = 0; x < sudoku_grid_def.grid_width; x += 1) {
       state_row.push([]);
       lock_row.push(false);
       note_row.push(false);
 
       if (y == 3 || y == 6) {
-        toggle_edge_state(edges, x, y, 1);
+        toggle_edge_state(sudoku_edges, x, y, 1);
       }
       if (x == 3 || x == 6) {
-        toggle_edge_state(edges, x, y, 2);
+        toggle_edge_state(sudoku_edges, x, y, 2);
       }
     }
-    state.push(state_row);
-    locks.push(lock_row);
-    notes.push(note_row);
+    sudoku_state.push(state_row);
+    sudoku_locks.push(lock_row);
+    sudoku_notes.push(note_row);
   }
 
   canvas.addEventListener("mousedown", function(event) {
-    block_select_mousedown(event, grid_def, selection, render);
+    block_select_mousedown(event, sudoku_grid_def, sudoku_selection, sudoku_render);
   });
   canvas.addEventListener("mousemove", function(event) {
-    block_select_mousemove(event, grid_def, selection, render);
+    block_select_mousemove(event, sudoku_grid_def, sudoku_selection, sudoku_render);
   });
   canvas.addEventListener("mouseup", function(event) {
-    block_select_mouseup(event, grid_def, selection, render);
+    block_select_mouseup(event, sudoku_grid_def, sudoku_selection, sudoku_render);
   });
-  document.addEventListener("keydown", on_key);
+  document.addEventListener("keydown", sudoku_on_key);
 
-  render();
+  sudoku_render();
 }
 
-function on_key(event) {
-  if (selection.cells.length > 0 && ["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete"].includes(event.key)) {
-    for (var i = 0; i < selection.cells.length; i += 1) {
-      if (!locks[selection.cells[i][1]][selection.cells[i][0]]) {
-        var cell = state[selection.cells[i][1]][selection.cells[i][0]]
+function sudoku_on_key(event) {
+  if (sudoku_selection.cells.length > 0 && ["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete"].includes(event.key)) {
+    for (var i = 0; i < sudoku_selection.cells.length; i += 1) {
+      if (!sudoku_locks[sudoku_selection.cells[i][1]][sudoku_selection.cells[i][0]]) {
+        var cell = sudoku_state[sudoku_selection.cells[i][1]][sudoku_selection.cells[i][0]]
         if (event.key == "Delete") {
           cell.splice(0, cell.length);
         } else {
@@ -76,47 +68,47 @@ function on_key(event) {
         }
       }
     } 
-  } else if (selection.cells.length == 1 && event.key == "ArrowUp" && selection.cells[0][1] > 0) {
-    selection.cells[0][1] -= 1;
-  } else if (selection.cells.length == 1 && event.key == "ArrowDown" && selection.cells[0][1] < grid_def.grid_height - 1) {
-    selection.cells[0][1] += 1;
-  } else if (selection.cells.length == 1 && event.key == "ArrowLeft" && selection.cells[0][0] > 0) {
-    selection.cells[0][0] -= 1;
-  } else if (selection.cells.length == 1 && event.key == "ArrowRight" && selection.cells[0][0] < grid_def.grid_width - 1) {
-    selection.cells[0][0] += 1;
-  } else if (selection.cells.length > 0 && event.key == "n") {
-    for (var i = 0; i < selection.cells.length; i += 1) {
-      notes[selection.cells[i][1]][selection.cells[i][0]] = !notes[selection.cells[i][1]][selection.cells[i][0]]
+  } else if (sudoku_selection.cells.length == 1 && event.key == "ArrowUp" && sudoku_selection.cells[0][1] > 0) {
+    sudoku_selection.cells[0][1] -= 1;
+  } else if (sudoku_selection.cells.length == 1 && event.key == "ArrowDown" && sudoku_selection.cells[0][1] < sudoku_grid_def.grid_height - 1) {
+    sudoku_selection.cells[0][1] += 1;
+  } else if (sudoku_selection.cells.length == 1 && event.key == "ArrowLeft" && sudoku_selection.cells[0][0] > 0) {
+    sudoku_selection.cells[0][0] -= 1;
+  } else if (sudoku_selection.cells.length == 1 && event.key == "ArrowRight" && sudoku_selection.cells[0][0] < sudoku_grid_def.grid_width - 1) {
+    sudoku_selection.cells[0][0] += 1;
+  } else if (sudoku_selection.cells.length > 0 && event.key == "n") {
+    for (var i = 0; i < sudoku_selection.cells.length; i += 1) {
+      sudoku_notes[sudoku_selection.cells[i][1]][sudoku_selection.cells[i][0]] = !sudoku_notes[sudoku_selection.cells[i][1]][sudoku_selection.cells[i][0]]
     }
   }
 
-  render();
+  sudoku_render();
 }
 
-function render() {
-  context.clearRect(0, 0, grid_def.canvas_size, grid_def.canvas_size);
+function sudoku_render() {
+  context.clearRect(0, 0, sudoku_grid_def.canvas_size, sudoku_grid_def.canvas_size);
 
-  draw_selection(grid_def, selection);
-  draw_grid(grid_def, edges);
-  draw_numbers();
+  draw_selection(sudoku_grid_def, sudoku_selection);
+  draw_grid(sudoku_grid_def, sudoku_edges);
+  sudoku_draw_numbers();
 }
 
-function draw_highlight() {
-  for (var i = 0; i < selection.cells.length; i += 1) {
+function sudoku_draw_highlight() {
+  for (var i = 0; i < sudoku_selection.cells.length; i += 1) {
     context.fillStyle = "#a0ffa0";
     context.fillRect(
-      selection.cells[i][0] * cell_width(grid_def) + edge_margin(grid_def),
-      selection.cells[i][1] * cell_height(grid_def) + edge_margin(grid_def),
-      cell_width(grid_def),
-      cell_height(grid_def)
+      sudoku_selection.cells[i][0] * cell_width(sudoku_grid_def) + edge_margin(sudoku_grid_def),
+      sudoku_selection.cells[i][1] * cell_height(sudoku_grid_def) + edge_margin(sudoku_grid_def),
+      cell_width(sudoku_grid_def),
+      cell_height(sudoku_grid_def)
     );
   }
 }
 
-function draw_numbers() {
-  for (var x = 0; x < grid_def.grid_width; x += 1) {
-    for (var y = 0; y < grid_def.grid_height; y += 1) {
-      var cell = state[y][x];
+function sudoku_draw_numbers() {
+  for (var x = 0; x < sudoku_grid_def.grid_width; x += 1) {
+    for (var y = 0; y < sudoku_grid_def.grid_height; y += 1) {
+      var cell = sudoku_state[y][x];
       if (cell.length > 0) {
         var font_size = null;
         var text = null;
@@ -134,17 +126,17 @@ function draw_numbers() {
         }
 
         // Set the font size 
-        if (cell.length == 1 && !notes[y][x]) {
-          context.font = "" + Math.floor(cell_height(grid_def) * 0.8) + "px serif";
+        if (cell.length == 1 && !sudoku_notes[y][x]) {
+          context.font = "" + Math.floor(cell_height(sudoku_grid_def) * 0.8) + "px serif";
         } else {
-          context.font = "" + Math.floor(cell_height(grid_def) * 0.4) + "px serif";
+          context.font = "" + Math.floor(cell_height(sudoku_grid_def) * 0.4) + "px serif";
         }
 
         // Set the text color
         context.fillStyle = "#000000";
 
         // Set the text alignment
-        if (!notes[y][x]) {
+        if (!sudoku_notes[y][x]) {
           context.textAlign = "center";
           context.textBaseline = "middle";
         } else {
@@ -154,17 +146,17 @@ function draw_numbers() {
 
         // Draw the text
         for (var i = 0; i < text.length; i += 1) {
-          if (!notes[y][x]) {
+          if (!sudoku_notes[y][x]) {
             context.fillText(
               text[i],
-              (x + 0.5) * cell_width(grid_def) + edge_margin(grid_def),
-              (y + ((i + 1) / (text.length + 1))) * cell_height(grid_def) + edge_margin(grid_def)
+              (x + 0.5) * cell_width(sudoku_grid_def) + edge_margin(sudoku_grid_def),
+              (y + ((i + 1) / (text.length + 1))) * cell_height(sudoku_grid_def) + edge_margin(sudoku_grid_def)
             );
           } else {
             context.fillText(
               text[i],
-              (x + 0.02) * cell_width(grid_def) + edge_margin(grid_def),
-              (y + (i / 3) + 0.02) * cell_height(grid_def) + edge_margin(grid_def)
+              (x + 0.02) * cell_width(sudoku_grid_def) + edge_margin(sudoku_grid_def),
+              (y + (i / 3) + 0.02) * cell_height(sudoku_grid_def) + edge_margin(sudoku_grid_def)
             );
           }
         }

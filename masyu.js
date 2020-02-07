@@ -1,126 +1,120 @@
-var canvas;
-var context;
-
-var grid_def = {
-  canvas_size: 1000,
+var masyu_grid_def = {
+  canvas_size: master_canvas_size,
   grid_width: 10,
   grid_height: 10,
   edge_margin_multiplier: 0.2,
   edge_width: 4
 };
 
-var selection = {
+var masyu_selection = {
   cells: [],
   down: false
 };
 
-var state = [];
-var paths = [];
-var path_start = null;
+var masyu_state = [];
+var masyu_paths = [];
+var masyu_path_start = null;
 
-function setup() {
-  canvas = document.getElementById("puzzle");
-  context = canvas.getContext("2d");
-
-  for (var y = 0; y < grid_def.grid_height; y += 1) {
+function masyu_setup() {
+  for (var y = 0; y < masyu_grid_def.grid_height; y += 1) {
     var row = [];
-    for (var x = 0; x < grid_def.grid_width; x += 1) {
+    for (var x = 0; x < masyu_grid_def.grid_width; x += 1) {
       row.push("e");
     }
-    state.push(row);
+    masyu_state.push(row);
   }
 
   canvas.addEventListener("mousedown", function(event) {
-    single_select_mousedown(event, grid_def, selection, render);
+    single_select_mousedown(event, masyu_grid_def, masyu_selection, masyu_render);
   });
   canvas.addEventListener("mousemove", function(event) {
-    single_select_mousemove(event, grid_def, selection, render);
+    single_select_mousemove(event, masyu_grid_def, masyu_selection, masyu_render);
   });
   canvas.addEventListener("mouseup", function(event) {
-    single_select_mouseup(event, grid_def, selection, render);
+    single_select_mouseup(event, masyu_grid_def, masyu_selection, masyu_render);
 
-    var x = selection.cells[0][0];
-    var y = selection.cells[0][1];
+    var x = masyu_selection.cells[0][0];
+    var y = masyu_selection.cells[0][1];
     if (event.shiftKey) {
-      if (state[y][x] == "e") {
-        state[y][x] = "b";
-      } else if (state[y][x] == "b") {
-        state[y][x] = "w";
-      } else if (state[y][x] == "w") {
-        state[y][x] = "e";
+      if (masyu_state[y][x] == "e") {
+        masyu_state[y][x] = "b";
+      } else if (masyu_state[y][x] == "b") {
+        masyu_state[y][x] = "w";
+      } else if (masyu_state[y][x] == "w") {
+        masyu_state[y][x] = "e";
       }
     } else {
-      if (path_start) {
-        if (x == path_start[0] && y != path_start[1]) {
-          if (y < path_start[1]) {
-            paths.push([[x, y], path_start]);
+      if (masyu_path_start) {
+        if (x == masyu_path_start[0] && y != masyu_path_start[1]) {
+          if (y < masyu_path_start[1]) {
+            masyu_paths.push([[x, y], masyu_path_start]);
           } else {
-            paths.push([path_start, [x, y]]);
+            masyu_paths.push([masyu_path_start, [x, y]]);
           }
-        } else if (x != path_start[0] && y == path_start[1]) {
-          if (x < path_start[0]) {
-            paths.push([[x, y], path_start]);
+        } else if (x != masyu_path_start[0] && y == masyu_path_start[1]) {
+          if (x < masyu_path_start[0]) {
+            masyu_paths.push([[x, y], masyu_path_start]);
           } else {
-            paths.push([path_start, [x, y]]);
+            masyu_paths.push([masyu_path_start, [x, y]]);
           }
         }
-        path_start = null;
+        masyu_path_start = null;
       } else {
-        path_start = [x, y];
+        masyu_path_start = [x, y];
       }
     }
 
-    render();
+    masyu_render();
   });
-  document.addEventListener("keypress", on_key);
+  document.addEventListener("keypress", masyu_on_key);
 
-  render();
+  masyu_render();
 }
 
-function on_key(event) {
+function masyu_on_key(event) {
   expand_grid(
     event,
-    grid_def,
+    masyu_grid_def,
     [{
-      obj: state,
+      obj: masyu_state,
       default: "e"
     }],
-    render
+    masyu_render
   );
 
   if (event.key == "u" || event.key == "U") {
-    paths.pop();
+    masyu_paths.pop();
   }
 
-  render();
+  masyu_render();
 }
 
-function render() {
-  context.clearRect(0, 0, grid_def.canvas_size, grid_def.canvas_size);
+function masyu_render() {
+  context.clearRect(0, 0, masyu_grid_def.canvas_size, masyu_grid_def.canvas_size);
 
-  draw_grid(grid_def);
-  draw_circles();
-  draw_paths();
+  draw_grid(masyu_grid_def);
+  masyu_draw_circles();
+  masyu_draw_paths();
 }
 
-function draw_circles() {
+function masyu_draw_circles() {
   context.strokeStyle = "#000000";
   context.fillStyle = "#000000";
-  for (var x = 0; x < grid_def.grid_width; x += 1) {
-    for (var y = 0; y < grid_def.grid_height; y += 1) {
-      if (state[y][x] != "e") {
+  for (var x = 0; x < masyu_grid_def.grid_width; x += 1) {
+    for (var y = 0; y < masyu_grid_def.grid_height; y += 1) {
+      if (masyu_state[y][x] != "e") {
         context.beginPath();
         context.arc(
-          x * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 + edge_margin(grid_def), 
-          y * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 + edge_margin(grid_def),
-          min_cell_size(grid_def) / 2 - min_cell_size(grid_def) * 0.1,
+          x * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def), 
+          y * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
+          min_cell_size(masyu_grid_def) / 2 - min_cell_size(masyu_grid_def) * 0.1,
           0,
           2 * Math.PI,
           false
         );
-        if (state[y][x] == "b") {
+        if (masyu_state[y][x] == "b") {
           context.fill();
-        } else if (state[y][x] == "w") {
+        } else if (masyu_state[y][x] == "w") {
           context.stroke();
         }
       }
@@ -128,23 +122,23 @@ function draw_circles() {
   }
 }
 
-function draw_paths() {
-  if (path_start) {
+function masyu_draw_paths() {
+  if (masyu_path_start) {
     context.fillStyle = "rgba(255, 0, 0, 0.5)";
     context.fillRect(
-      path_start[0] * min_cell_size(grid_def) + edge_margin(grid_def),
-      path_start[1] * min_cell_size(grid_def) + edge_margin(grid_def),
-      min_cell_size(grid_def),
-      min_cell_size(grid_def)
+      masyu_path_start[0] * min_cell_size(masyu_grid_def) + edge_margin(masyu_grid_def),
+      masyu_path_start[1] * min_cell_size(masyu_grid_def) + edge_margin(masyu_grid_def),
+      min_cell_size(masyu_grid_def),
+      min_cell_size(masyu_grid_def)
     );
   }
 
   context.fillStyle = "#ff0000";
-  for (var i = 0; i < paths.length; i += 1) {
+  for (var i = 0; i < masyu_paths.length; i += 1) {
     context.beginPath();
     context.arc(
-      paths[i][0][0] * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 + edge_margin(grid_def),
-      paths[i][0][1] * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 + edge_margin(grid_def),
+      masyu_paths[i][0][0] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
+      masyu_paths[i][0][1] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
       5,
       0,
       2 * Math.PI,
@@ -153,26 +147,26 @@ function draw_paths() {
     context.fill();
     context.beginPath();
     context.arc(
-      paths[i][1][0] * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 + edge_margin(grid_def),
-      paths[i][1][1] * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 + edge_margin(grid_def),
+      masyu_paths[i][1][0] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
+      masyu_paths[i][1][1] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
       5,
       0,
       2 * Math.PI,
       false
     );
     context.fill();
-    if (paths[i][0][0] == paths[i][1][0]) {
+    if (masyu_paths[i][0][0] == masyu_paths[i][1][0]) {
       context.fillRect(
-        paths[i][0][0] * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 - 5 + edge_margin(grid_def),
-        paths[i][0][1] * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 + edge_margin(grid_def),
+        masyu_paths[i][0][0] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 - 5 + edge_margin(masyu_grid_def),
+        masyu_paths[i][0][1] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
         10,
-        (paths[i][1][1] - paths[i][0][1]) * min_cell_size(grid_def)
+        (masyu_paths[i][1][1] - masyu_paths[i][0][1]) * min_cell_size(masyu_grid_def)
       );
-    } else if (paths[i][0][1] == paths[i][1][1]) {
+    } else if (masyu_paths[i][0][1] == masyu_paths[i][1][1]) {
       context.fillRect(
-        paths[i][0][0] * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 + edge_margin(grid_def),
-        paths[i][0][1] * min_cell_size(grid_def) + min_cell_size(grid_def) / 2 - 5 + edge_margin(grid_def),
-        (paths[i][1][0] - paths[i][0][0]) * min_cell_size(grid_def),
+        masyu_paths[i][0][0] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
+        masyu_paths[i][0][1] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 - 5 + edge_margin(masyu_grid_def),
+        (masyu_paths[i][1][0] - masyu_paths[i][0][0]) * min_cell_size(masyu_grid_def),
         10
       );
     }

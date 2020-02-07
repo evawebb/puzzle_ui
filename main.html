@@ -2,13 +2,50 @@
 
 <html>
   <head>
+    <script type="text/javascript">
+      var canvas;
+      var context;
+      var master_canvas_size = 500;
+
+      function presetup() {
+        canvas = document.getElementById("puzzle");
+        context = canvas.getContext("2d");
+      }
+    </script>
     <script src="util.js"></script>
-    <!-- <script src="masyu.js"></script> -->
-    <!-- <script src="sudoku.js"></script> -->
-    <!-- <script src="fillomino.js"></script> -->
-    <script src="starbattle.js"></script>
+    <script type="text/javascript" src="fillomino.js"></script>
+    <script type="text/javascript" src="masyu.js"></script>
+    <script type="text/javascript" src="starbattle.js"></script>
+    <script type="text/javascript" src="sudoku.js"></script>
+    <script type="text/javascript">
+      function load(puzzle) {
+        if (puzzle == "fillomino") {
+          fillomino_setup();
+        } else if (puzzle == "masyu") {
+          masyu_setup();
+        } else if (puzzle == "starbattle") {
+          starbattle_setup();
+        } else if (puzzle == "sudoku") {
+          sudoku_setup();
+        }
+
+        var selection = document.getElementById("selection");
+        selection.parentNode.removeChild(selection);
+      }
+    </script>
   </head>
-  <body onload="setup();">
-    <canvas id="puzzle" width="1000px" height="1000px"></canvas>
+  <body onload="presetup();">
+    <div id="selection">
+      <a href="#" onclick="load('fillomino');">fillomino</a>
+      <a href="#" onclick="load('masyu');">masyu</a>
+      <a href="#" onclick="load('starbattle');">starbattle</a>
+      <a href="#" onclick="load('sudoku');">sudoku</a>
+    </div>
+    <br />
+
+    <canvas id="puzzle" width="500px" height="500px"></canvas>
+    <br />
+
+    <textarea id="csv" rows="10" cols="10"></textarea>
   </body>
 </html>

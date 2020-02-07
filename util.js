@@ -146,8 +146,8 @@ function draw_selection(grid_def_obj, selection_obj) {
   context.fillStyle = "#a0ffa0";
   for (var i = 0; i < selection_obj.cells.length; i += 1) {
     context.fillRect(
-      selection.cells[i][0] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
-      selection.cells[i][1] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
+      selection_obj.cells[i][0] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
+      selection_obj.cells[i][1] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
       min_cell_size(grid_def_obj),
       min_cell_size(grid_def_obj)
     );
@@ -283,9 +283,9 @@ function expand_grid(event, grid_def_obj, state_objs, render_fn) {
 }
 
 function init_state(state_obj, grid_def_obj, default_value) {
-  for (var y = 0; y < grid_def.grid_height; y += 1) {
+  for (var y = 0; y < grid_def_obj.grid_height; y += 1) {
     var state_row = [];
-    for (var x = 0; x < grid_def.grid_width; x += 1) {
+    for (var x = 0; x < grid_def_obj.grid_width; x += 1) {
       state_row.push(default_value);
     }
     state_obj.grid.push(state_row);
