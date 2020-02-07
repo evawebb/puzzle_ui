@@ -1,174 +1,176 @@
-var masyu_grid_def = {
-  canvas_size: master_canvas_size,
-  grid_width: 10,
-  grid_height: 10,
-  edge_margin_multiplier: 0.2,
-  edge_width: 4
-};
+class Masyu {
+  constructor() {
+    this.grid_def = {
+      canvas_size: master_canvas_size,
+      grid_width: 10,
+      grid_height: 10,
+      edge_margin_multiplier: 0.2,
+      edge_width: 4
+    };
 
-var masyu_selection = {
-  cells: [],
-  down: false
-};
+    this.selection = {
+      cells: [],
+      down: false
+    };
 
-var masyu_state = [];
-var masyu_paths = [];
-var masyu_path_start = null;
+    this.state = [];
+    this.paths = [];
+    this.path_start = null;
 
-function masyu_setup() {
-  for (var y = 0; y < masyu_grid_def.grid_height; y += 1) {
-    var row = [];
-    for (var x = 0; x < masyu_grid_def.grid_width; x += 1) {
-      row.push("e");
-    }
-    masyu_state.push(row);
-  }
-
-  canvas.addEventListener("mousedown", function(event) {
-    single_select_mousedown(event, masyu_grid_def, masyu_selection, masyu_render);
-  });
-  canvas.addEventListener("mousemove", function(event) {
-    single_select_mousemove(event, masyu_grid_def, masyu_selection, masyu_render);
-  });
-  canvas.addEventListener("mouseup", function(event) {
-    single_select_mouseup(event, masyu_grid_def, masyu_selection, masyu_render);
-
-    var x = masyu_selection.cells[0][0];
-    var y = masyu_selection.cells[0][1];
-    if (event.shiftKey) {
-      if (masyu_state[y][x] == "e") {
-        masyu_state[y][x] = "b";
-      } else if (masyu_state[y][x] == "b") {
-        masyu_state[y][x] = "w";
-      } else if (masyu_state[y][x] == "w") {
-        masyu_state[y][x] = "e";
+    for (var y = 0; y < this.grid_def.grid_height; y += 1) {
+      var row = [];
+      for (var x = 0; x < this.grid_def.grid_width; x += 1) {
+        row.push("e");
       }
-    } else {
-      if (masyu_path_start) {
-        if (x == masyu_path_start[0] && y != masyu_path_start[1]) {
-          if (y < masyu_path_start[1]) {
-            masyu_paths.push([[x, y], masyu_path_start]);
-          } else {
-            masyu_paths.push([masyu_path_start, [x, y]]);
-          }
-        } else if (x != masyu_path_start[0] && y == masyu_path_start[1]) {
-          if (x < masyu_path_start[0]) {
-            masyu_paths.push([[x, y], masyu_path_start]);
-          } else {
-            masyu_paths.push([masyu_path_start, [x, y]]);
-          }
+      this.state.push(row);
+    }
+
+    canvas.addEventListener("mousedown", (function(event) {
+      single_select_mousedown(event, this.grid_def, this.selection, this.render.bind(this));
+    }).bind(this));
+    canvas.addEventListener("mousemove", (function(event) {
+      single_select_mousemove(event, this.grid_def, this.selection, this.render.bind(this));
+    }).bind(this));
+    canvas.addEventListener("mouseup", (function(event) {
+      single_select_mouseup(event, this.grid_def, this.selection, this.render.bind(this));
+
+      var x = this.selection.cells[0][0];
+      var y = this.selection.cells[0][1];
+      if (event.shiftKey) {
+        if (this.state[y][x] == "e") {
+          this.state[y][x] = "b";
+        } else if (this.state[y][x] == "b") {
+          this.state[y][x] = "w";
+        } else if (this.state[y][x] == "w") {
+          this.state[y][x] = "e";
         }
-        masyu_path_start = null;
       } else {
-        masyu_path_start = [x, y];
+        if (this.path_start) {
+          if (x == this.path_start[0] && y != this.path_start[1]) {
+            if (y < this.path_start[1]) {
+              this.paths.push([[x, y], this.path_start]);
+            } else {
+              this.paths.push([this.path_start, [x, y]]);
+            }
+          } else if (x != this.path_start[0] && y == this.path_start[1]) {
+            if (x < this.path_start[0]) {
+              this.paths.push([[x, y], this.path_start]);
+            } else {
+              this.paths.push([this.path_start, [x, y]]);
+            }
+          }
+          this.path_start = null;
+        } else {
+          this.path_start = [x, y];
+        }
       }
-    }
 
-    masyu_render();
-  });
-  document.addEventListener("keypress", masyu_on_key);
+      this.render();
+    }).bind(this));
+    document.addEventListener("keypress", this.on_key.bind(this));
 
-  masyu_render();
-}
-
-function masyu_on_key(event) {
-  expand_grid(
-    event,
-    masyu_grid_def,
-    [{
-      obj: masyu_state,
-      default: "e"
-    }],
-    masyu_render
-  );
-
-  if (event.key == "u" || event.key == "U") {
-    masyu_paths.pop();
+    this.render();
   }
 
-  masyu_render();
-}
+  on_key(event) {
+    expand_grid(
+      event,
+      this.grid_def,
+      [{
+        obj: this.state,
+        default: "e"
+      }],
+      this.render
+    );
 
-function masyu_render() {
-  context.clearRect(0, 0, masyu_grid_def.canvas_size, masyu_grid_def.canvas_size);
+    if (event.key == "u" || event.key == "U") {
+      this.paths.pop();
+    }
 
-  draw_grid(masyu_grid_def);
-  masyu_draw_circles();
-  masyu_draw_paths();
-}
+    this.render();
+  }
 
-function masyu_draw_circles() {
-  context.strokeStyle = "#000000";
-  context.fillStyle = "#000000";
-  for (var x = 0; x < masyu_grid_def.grid_width; x += 1) {
-    for (var y = 0; y < masyu_grid_def.grid_height; y += 1) {
-      if (masyu_state[y][x] != "e") {
-        context.beginPath();
-        context.arc(
-          x * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def), 
-          y * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
-          min_cell_size(masyu_grid_def) / 2 - min_cell_size(masyu_grid_def) * 0.1,
-          0,
-          2 * Math.PI,
-          false
-        );
-        if (masyu_state[y][x] == "b") {
-          context.fill();
-        } else if (masyu_state[y][x] == "w") {
-          context.stroke();
+  render() {
+    context.clearRect(0, 0, this.grid_def.canvas_size, this.grid_def.canvas_size);
+
+    draw_grid(this.grid_def);
+    this.draw_circles();
+    this.draw_paths();
+  }
+
+  draw_circles() {
+    context.strokeStyle = "#000000";
+    context.fillStyle = "#000000";
+    for (var x = 0; x < this.grid_def.grid_width; x += 1) {
+      for (var y = 0; y < this.grid_def.grid_height; y += 1) {
+        if (this.state[y][x] != "e") {
+          context.beginPath();
+          context.arc(
+            x * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def), 
+            y * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+            min_cell_size(this.grid_def) / 2 - min_cell_size(this.grid_def) * 0.1,
+            0,
+            2 * Math.PI,
+            false
+          );
+          if (this.state[y][x] == "b") {
+            context.fill();
+          } else if (this.state[y][x] == "w") {
+            context.stroke();
+          }
         }
       }
     }
   }
-}
 
-function masyu_draw_paths() {
-  if (masyu_path_start) {
-    context.fillStyle = "rgba(255, 0, 0, 0.5)";
-    context.fillRect(
-      masyu_path_start[0] * min_cell_size(masyu_grid_def) + edge_margin(masyu_grid_def),
-      masyu_path_start[1] * min_cell_size(masyu_grid_def) + edge_margin(masyu_grid_def),
-      min_cell_size(masyu_grid_def),
-      min_cell_size(masyu_grid_def)
-    );
-  }
+  draw_paths() {
+    if (this.path_start) {
+      context.fillStyle = "rgba(255, 0, 0, 0.5)";
+      context.fillRect(
+        this.path_start[0] * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+        this.path_start[1] * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+        min_cell_size(this.grid_def),
+        min_cell_size(this.grid_def)
+      );
+    }
 
-  context.fillStyle = "#ff0000";
-  for (var i = 0; i < masyu_paths.length; i += 1) {
-    context.beginPath();
-    context.arc(
-      masyu_paths[i][0][0] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
-      masyu_paths[i][0][1] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
-      5,
-      0,
-      2 * Math.PI,
-      false
-    );
-    context.fill();
-    context.beginPath();
-    context.arc(
-      masyu_paths[i][1][0] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
-      masyu_paths[i][1][1] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
-      5,
-      0,
-      2 * Math.PI,
-      false
-    );
-    context.fill();
-    if (masyu_paths[i][0][0] == masyu_paths[i][1][0]) {
-      context.fillRect(
-        masyu_paths[i][0][0] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 - 5 + edge_margin(masyu_grid_def),
-        masyu_paths[i][0][1] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
-        10,
-        (masyu_paths[i][1][1] - masyu_paths[i][0][1]) * min_cell_size(masyu_grid_def)
+    context.fillStyle = "#ff0000";
+    for (var i = 0; i < this.paths.length; i += 1) {
+      context.beginPath();
+      context.arc(
+        this.paths[i][0][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+        this.paths[i][0][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+        5,
+        0,
+        2 * Math.PI,
+        false
       );
-    } else if (masyu_paths[i][0][1] == masyu_paths[i][1][1]) {
-      context.fillRect(
-        masyu_paths[i][0][0] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 + edge_margin(masyu_grid_def),
-        masyu_paths[i][0][1] * min_cell_size(masyu_grid_def) + min_cell_size(masyu_grid_def) / 2 - 5 + edge_margin(masyu_grid_def),
-        (masyu_paths[i][1][0] - masyu_paths[i][0][0]) * min_cell_size(masyu_grid_def),
-        10
+      context.fill();
+      context.beginPath();
+      context.arc(
+        this.paths[i][1][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+        this.paths[i][1][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+        5,
+        0,
+        2 * Math.PI,
+        false
       );
+      context.fill();
+      if (this.paths[i][0][0] == this.paths[i][1][0]) {
+        context.fillRect(
+          this.paths[i][0][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 - 5 + edge_margin(this.grid_def),
+          this.paths[i][0][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+          10,
+          (this.paths[i][1][1] - this.paths[i][0][1]) * min_cell_size(this.grid_def)
+        );
+      } else if (this.paths[i][0][1] == this.paths[i][1][1]) {
+        context.fillRect(
+          this.paths[i][0][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+          this.paths[i][0][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 - 5 + edge_margin(this.grid_def),
+          (this.paths[i][1][0] - this.paths[i][0][0]) * min_cell_size(this.grid_def),
+          10
+        );
+      }
     }
   }
 }

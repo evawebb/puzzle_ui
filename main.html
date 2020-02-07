@@ -23,11 +23,11 @@
         if (puzzle == "fillomino") {
           p = new Fillomino();
         } else if (puzzle == "masyu") {
-          masyu_setup();
+          p = new Masyu();
         } else if (puzzle == "starbattle") {
-          starbattle_setup();
+          p = new Starbattle();
         } else if (puzzle == "sudoku") {
-          sudoku_setup();
+          p = new Sudoku();
         }
 
         var selection = document.getElementById("selection");
