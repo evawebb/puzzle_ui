@@ -94,45 +94,68 @@ class Fillomino {
     this.selected = null;
 
     const csv = event.target.value;
+    const parsed_csv = [];
     const csv_rows = csv.split("\n");
-    this.grid_def.grid_height = 0;
+    var error_message = null;
+    var last_length = -1;
     for (var r = 0; r < csv_rows.length; r += 1) {
-      if (csv_rows[r].length > 0) {
-        const csv_vals = csv_rows[r].split(",");
-        const state_row = [];
-        for (var c = 0; c < csv_vals.length; c += 1) {
-          state_row.push(csv_vals[c]);
-        }
-        this.cell_state.push(state_row);
+      const stripped_row = csv_rows[r].trim().replace(/ /g, "");
+      if (stripped_row.length > 0) {
+        const split_row = stripped_row.split(",");
 
-        this.grid_def.grid_height += 1;
-        this.grid_def.grid_width = csv_vals.length;
+        if (last_length != -1 && last_length != split_row.length) {
+          error_message = "Mismatched row lengths.";
+        }
+        for (var c = 0; c < split_row.length; c += 1) {
+          if (c.length > 0 && c.match(/^\d+$/) == null) {
+            error_message = "Non-numeric cells detected.";
+          }
+        }
+
+        last_length = split_row.length;
+        parsed_csv.push(split_row);
       }
     }
 
-    for (var y = 0; y < this.grid_def.grid_height; y += 1) {
-      for (var x = 0; x < this.grid_def.grid_width; x += 1) {
-        if (
-          y > 0 &&
-          this.cell_state[y][x] != this.cell_state[y - 1][x] && 
-          this.cell_state[y][x] != "" &&
-          this.cell_state[y - 1][x] != ""
-        ) {
-          toggle_edge_state(this.edge_state, x, y, 1);
-        }
+    if (error_message == null) {
+      this.grid_def.grid_height = parsed_csv.length;
+      this.grid_def.grid_width = last_length;
 
-        if (
-          x > 0 &&
-          this.cell_state[y][x] != this.cell_state[y][x - 1] && 
-          this.cell_state[y][x] != "" && 
-          this.cell_state[y][x - 1] != ""
-        ) {
-          toggle_edge_state(this.edge_state, x, y, 2);
+      this.cell_state = [];
+      for (var y = 0; y < parsed_csv.length; y += 1) {
+        const cell_row = [];
+        for (var x = 0; x < parsed_csv[y].length; x += 1) {
+          cell_row.push(parsed_csv[y][x]);
+        }
+        this.cell_state.push(cell_row);
+      }
+
+      for (var y = 0; y < this.grid_def.grid_height; y += 1) {
+        for (var x = 0; x < this.grid_def.grid_width; x += 1) {
+          if (
+            y > 0 &&
+            this.cell_state[y][x] != this.cell_state[y - 1][x] && 
+            this.cell_state[y][x] != "" &&
+            this.cell_state[y - 1][x] != ""
+          ) {
+            toggle_edge_state(this.edge_state, x, y, 1);
+          }
+
+          if (
+            x > 0 &&
+            this.cell_state[y][x] != this.cell_state[y][x - 1] && 
+            this.cell_state[y][x] != "" && 
+            this.cell_state[y][x - 1] != ""
+          ) {
+            toggle_edge_state(this.edge_state, x, y, 2);
+          }
         }
       }
-    }
 
-    this.render();
+      this.render();
+    } else {
+      console.log(error_message);
+    }
   }
 
   render() {
@@ -162,11 +185,13 @@ class Fillomino {
     context.textBaseline = "middle";
     for (var y = 0; y < this.grid_def.grid_height; y += 1) {
       for (var x = 0; x < this.grid_def.grid_width; x += 1) {
-        context.fillText(
-          this.cell_state[y][x],
-          ((x + 0.5) * min_cell_size(this.grid_def)) + edge_margin(this.grid_def),
-          ((y + 0.5) * min_cell_size(this.grid_def)) + edge_margin(this.grid_def)
-        );
+        if (this.cell_state[y][x] != "") {
+          context.fillText(
+            this.cell_state[y][x],
+            ((x + 0.5) * min_cell_size(this.grid_def)) + edge_margin(this.grid_def),
+            ((y + 0.5) * min_cell_size(this.grid_def)) + edge_margin(this.grid_def)
+          );
+        }
       }
     }
   }
