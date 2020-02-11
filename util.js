@@ -325,25 +325,35 @@ function undo(state_obj) {
 
 function load_csv(event, grid_def_obj, state_obj) {
   const parsed_csv = [];
-  const csv_rows = event.target.value.split("\n");
+  const parsed_extra = [];
+  const csv_rows = event.target.value.split("|");
   var error_message = null;
   var last_length = -1;
+  var extra_mode = false;
   for (var r = 0; r < csv_rows.length; r += 1) {
     const stripped_row = csv_rows[r].trim().replace(/ /g, "");
-    if (stripped_row.length > 0) {
-      const split_row = stripped_row.split(",");
+    if (stripped_row == "-") {
+      extra_mode = true;
+    } else {
+      if (stripped_row.length > 0) {
+        const split_row = stripped_row.split(",");
 
-      if (last_length != -1 && last_length != split_row.length) {
-        error_message = "Mismatched row lengths.";
-      }
-      for (var c = 0; c < split_row.length; c += 1) {
-        if (c.length > 0 && c.match(/^\d+$/) == null) {
-          error_message = "Non-numeric cells detected.";
+        if (!extra_mode) {
+          if (last_length != -1 && last_length != split_row.length) {
+            error_message = "Mismatched row lengths.";
+          }
+          for (var c = 0; c < split_row.length; c += 1) {
+            if (c.length > 0 && c.match(/^\d+$/) == null) {
+              error_message = "Non-numeric cells detected.";
+            }
+          }
+
+          last_length = split_row.length;
+          parsed_csv.push(split_row);
+        } else {
+          parsed_extra.push(split_row);
         }
       }
-
-      last_length = split_row.length;
-      parsed_csv.push(split_row);
     }
   }
 
@@ -359,12 +369,15 @@ function load_csv(event, grid_def_obj, state_obj) {
       }
       state_obj.grid.push(cell_row);
     }
+
+    return parsed_extra;
   } else {
     alert(error_message);
+    return null;
   }
 }
 
-function output_csv(grid_def_obj, state_obj) {
+function output_csv(grid_def_obj, state_obj, extra) {
   var csv_out = "";
   for (var y = 0; y < grid_def_obj.grid_height; y += 1) {
     for (var x = 0; x < grid_def_obj.grid_width; x += 1) {
@@ -374,8 +387,11 @@ function output_csv(grid_def_obj, state_obj) {
         csv_out += ",";
       }
     }
-    csv_out += "\n";
+    csv_out += "|";
   }
+  
+  csv_out += "-|";
+  csv_out += extra;
 
   csv.value = csv_out;
 }

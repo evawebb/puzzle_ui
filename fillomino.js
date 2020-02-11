@@ -99,7 +99,16 @@ class Fillomino {
       down: false
     };
 
-    load_csv(event, this.grid_def, this.state);
+    const extra = load_csv(event, this.grid_def, this.state);
+    for (var i = 0; i < extra.length; i += 1) {
+      set_edge_state(
+        this.state.edges, 
+        extra[i][0],
+        extra[i][1],
+        parseInt(extra[i][2]),
+        true
+      );
+    }
     this.render();
   }
 
@@ -108,7 +117,7 @@ class Fillomino {
     draw_selection(this.grid_def, this.selection);
     draw_grid(this.grid_def, this.state.edges);
     this.draw_numbers();
-    output_csv(this.grid_def, this.state);
+    this.render_csv();
   }
 
   draw_numbers() {
@@ -127,5 +136,16 @@ class Fillomino {
         }
       }
     }
+  }
+
+  render_csv() {
+    var extra = "";
+    for (var x in this.state.edges) {
+      for (var y in this.state.edges[x]) {
+        extra += [x, y, this.state.edges[x][y]].join(",");
+        extra += "|";
+      }
+    }
+    output_csv(this.grid_def, this.state, extra);
   }
 }
