@@ -322,3 +322,60 @@ function undo(state_obj) {
     }
   }
 }
+
+function load_csv(event, grid_def_obj, state_obj) {
+  const parsed_csv = [];
+  const csv_rows = event.target.value.split("\n");
+  var error_message = null;
+  var last_length = -1;
+  for (var r = 0; r < csv_rows.length; r += 1) {
+    const stripped_row = csv_rows[r].trim().replace(/ /g, "");
+    if (stripped_row.length > 0) {
+      const split_row = stripped_row.split(",");
+
+      if (last_length != -1 && last_length != split_row.length) {
+        error_message = "Mismatched row lengths.";
+      }
+      for (var c = 0; c < split_row.length; c += 1) {
+        if (c.length > 0 && c.match(/^\d+$/) == null) {
+          error_message = "Non-numeric cells detected.";
+        }
+      }
+
+      last_length = split_row.length;
+      parsed_csv.push(split_row);
+    }
+  }
+
+  if (error_message == null) {
+    grid_def_obj.grid_height = parsed_csv.length;
+    grid_def_obj.grid_width = last_length;
+
+    state_obj.grid = [];
+    for (var y = 0; y < parsed_csv.length; y += 1) {
+      const cell_row = [];
+      for (var x = 0; x < parsed_csv[y].length; x += 1) {
+        cell_row.push(parsed_csv[y][x]);
+      }
+      state_obj.grid.push(cell_row);
+    }
+  } else {
+    alert(error_message);
+  }
+}
+
+function output_csv(grid_def_obj, state_obj) {
+  var csv_out = "";
+  for (var y = 0; y < grid_def_obj.grid_height; y += 1) {
+    for (var x = 0; x < grid_def_obj.grid_width; x += 1) {
+      csv_out += state_obj.grid[y][x];
+
+      if (x != grid_def_obj.grid_width - 1) {
+        csv_out += ",";
+      }
+    }
+    csv_out += "\n";
+  }
+
+  csv.value = csv_out;
+}

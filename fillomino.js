@@ -28,6 +28,7 @@ class Fillomino {
     canvas.addEventListener("mouseup", (function(event) {
       single_select_mouseup(event, this.grid_def, this.selection, this.render.bind(this));
     }).bind(this));
+
     document.addEventListener("keydown", this.on_key.bind(this));
     this.render();
   }
@@ -98,47 +99,8 @@ class Fillomino {
       down: false
     };
 
-    const csv = event.target.value;
-    const parsed_csv = [];
-    const csv_rows = csv.split("\n");
-    var error_message = null;
-    var last_length = -1;
-    for (var r = 0; r < csv_rows.length; r += 1) {
-      const stripped_row = csv_rows[r].trim().replace(/ /g, "");
-      if (stripped_row.length > 0) {
-        const split_row = stripped_row.split(",");
-
-        if (last_length != -1 && last_length != split_row.length) {
-          error_message = "Mismatched row lengths.";
-        }
-        for (var c = 0; c < split_row.length; c += 1) {
-          if (c.length > 0 && c.match(/^\d+$/) == null) {
-            error_message = "Non-numeric cells detected.";
-          }
-        }
-
-        last_length = split_row.length;
-        parsed_csv.push(split_row);
-      }
-    }
-
-    if (error_message == null) {
-      this.grid_def.grid_height = parsed_csv.length;
-      this.grid_def.grid_width = last_length;
-
-      this.state.grid = [];
-      for (var y = 0; y < parsed_csv.length; y += 1) {
-        const cell_row = [];
-        for (var x = 0; x < parsed_csv[y].length; x += 1) {
-          cell_row.push(parsed_csv[y][x]);
-        }
-        this.state.grid.push(cell_row);
-      }
-
-      this.render();
-    } else {
-      console.log(error_message);
-    }
+    load_csv(event, this.grid_def, this.state);
+    this.render();
   }
 
   render() {
@@ -146,7 +108,7 @@ class Fillomino {
     draw_selection(this.grid_def, this.selection);
     draw_grid(this.grid_def, this.state.edges);
     this.draw_numbers();
-    this.output_csv();
+    output_csv(this.grid_def, this.state);
   }
 
   draw_numbers() {
@@ -165,21 +127,5 @@ class Fillomino {
         }
       }
     }
-  }
-
-  output_csv() {
-    var csv_out = "";
-    for (var y = 0; y < this.grid_def.grid_height; y += 1) {
-      for (var x = 0; x < this.grid_def.grid_width; x += 1) {
-        csv_out += this.state.grid[y][x];
-
-        if (x != this.grid_def.grid_width - 1) {
-          csv_out += ",";
-        }
-      }
-      csv_out += "\n";
-    }
-
-    csv.value = csv_out;
   }
 }
