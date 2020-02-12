@@ -46,23 +46,30 @@ class Fillomino {
 
     const sc = this.selection.cells[0];
     if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x", "t", "T"].includes(event.key) && sc) {
+      var new_state = null;
       if (event.key == "Delete" || event.key == "x") {
-        this.state.grid[sc[1]][sc[0]] = "";
+        new_state = "";
       } else if (event.key == "t") {
         if (this.state.grid[sc[1]][sc[0]] == "") {
-          this.state.grid[sc[1]][sc[0]] = "10";
+          new_state = "10";
         } else {
-          this.state.grid[sc[1]][sc[0]] = 10 + parseInt(this.state.grid[sc[1]][sc[0]]);
+          new_state = 10 + parseInt(this.state.grid[sc[1]][sc[0]]);
         }
       } else if (event.key == "T") {
-        if (parseInt(this.state.grid[sc[1]][sc[0]]) == 10) {
-          this.state.grid[sc[1]][sc[0]] = "";
+        if (parseInt(this.state.grid[sc[1]][sc[0]]) <= 10) {
+          new_state = "";
         } else if (parseInt(this.state.grid[sc[1]][sc[0]]) > 10) {
-          this.state.grid[sc[1]][sc[0]] = parseInt(this.state.grid[sc[1]][sc[0]]) - 10;
+          new_state = parseInt(this.state.grid[sc[1]][sc[0]]) - 10;
         }
       } else {
-        this.state.grid[sc[1]][sc[0]] = event.key;
+        new_state = event.key;
       }
+
+      set_state(
+        this.state,
+        [[sc[0], sc[1]]],
+        new_state
+      );
     } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key) && sc) {
       if (event.key == "ArrowUp" && sc[1] > 0) {
         sc[1] -= 1;
@@ -83,6 +90,8 @@ class Fillomino {
       } else if (event.key == "d" && sc[0] < this.grid_def.grid_width - 1) {
         toggle_edge_state(this.state.edges, sc[0] + 1, sc[1], 2);
       }
+    } else if (event.key == "u") {
+      undo(this.state);
     }
 
     this.render();

@@ -292,22 +292,26 @@ function init_state(state_obj, grid_def_obj, default_value) {
   }
 }
 
-function set_state(state_obj, coords, new_value) {
+function set_state(state_obj, coords, new_value, subobj = "grid") {
+  const o = state_obj[subobj];
   var history_entry = {
-    coords: coords,
+    coords: [],
     old_values: [],
-    new_values: []
+    new_values: [],
+    subobj: subobj
   };
+
 
   for (var i = 0; i < coords.length; i += 1) {
     var coord = coords[i];
     var x = coord[0];
     var y = coord[1];
 
-    history_entry.old_values.push(state_obj.grid[y][x]);
+    history_entry.coords.push([x, y]);
+    history_entry.old_values.push(o[y][x]);
     history_entry.new_values.push(new_value);
 
-    state_obj.grid[y][x] = new_value;
+    o[y][x] = new_value;
   }
 
   state_obj.history.push(history_entry);
@@ -315,10 +319,11 @@ function set_state(state_obj, coords, new_value) {
 
 function undo(state_obj) {
   if (state_obj.history.length > 0) {
-    var last_history_entry = state_obj.history.pop();
+    const last_history_entry = state_obj.history.pop();
     for (var i = 0; i < last_history_entry.coords.length; i += 1) {
-      var coord = last_history_entry.coords[i];
-      state_obj.grid[coord[1]][coord[0]] = last_history_entry.old_values[i];
+      const coord = last_history_entry.coords[i];
+      const subobj = last_history_entry.subobj;
+      state_obj[subobj][coord[1]][coord[0]] = last_history_entry.old_values[i];
     }
   }
 }
