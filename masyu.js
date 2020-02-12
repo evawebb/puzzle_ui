@@ -7,22 +7,22 @@ class Masyu {
       edge_margin_multiplier: 0.2,
       edge_width: 4
     };
-
+    this.state = {
+      grid: [],
+      paths: [],
+      path_start: null
+    };
     this.selection = {
       cells: [],
       down: false
     };
-
-    this.state = [];
-    this.paths = [];
-    this.path_start = null;
 
     for (var y = 0; y < this.grid_def.grid_height; y += 1) {
       var row = [];
       for (var x = 0; x < this.grid_def.grid_width; x += 1) {
         row.push("e");
       }
-      this.state.push(row);
+      this.state.grid.push(row);
     }
 
     canvas.addEventListener("mousedown", (function(event) {
@@ -37,31 +37,31 @@ class Masyu {
       var x = this.selection.cells[0][0];
       var y = this.selection.cells[0][1];
       if (event.shiftKey) {
-        if (this.state[y][x] == "e") {
-          this.state[y][x] = "b";
-        } else if (this.state[y][x] == "b") {
-          this.state[y][x] = "w";
-        } else if (this.state[y][x] == "w") {
-          this.state[y][x] = "e";
+        if (this.state.grid[y][x] == "e") {
+          this.state.grid[y][x] = "b";
+        } else if (this.state.grid[y][x] == "b") {
+          this.state.grid[y][x] = "w";
+        } else if (this.state.grid[y][x] == "w") {
+          this.state.grid[y][x] = "e";
         }
       } else {
-        if (this.path_start) {
-          if (x == this.path_start[0] && y != this.path_start[1]) {
-            if (y < this.path_start[1]) {
-              this.paths.push([[x, y], this.path_start]);
+        if (this.state.path_start) {
+          if (x == this.state.path_start[0] && y != this.state.path_start[1]) {
+            if (y < this.state.path_start[1]) {
+              this.state.paths.push([[x, y], this.state.path_start]);
             } else {
-              this.paths.push([this.path_start, [x, y]]);
+              this.state.paths.push([this.state.path_start, [x, y]]);
             }
-          } else if (x != this.path_start[0] && y == this.path_start[1]) {
-            if (x < this.path_start[0]) {
-              this.paths.push([[x, y], this.path_start]);
+          } else if (x != this.state.path_start[0] && y == this.state.path_start[1]) {
+            if (x < this.state.path_start[0]) {
+              this.state.paths.push([[x, y], this.state.path_start]);
             } else {
-              this.paths.push([this.path_start, [x, y]]);
+              this.state.paths.push([this.state.path_start, [x, y]]);
             }
           }
-          this.path_start = null;
+          this.state.path_start = null;
         } else {
-          this.path_start = [x, y];
+          this.state.path_start = [x, y];
         }
       }
 
@@ -77,16 +77,43 @@ class Masyu {
       event,
       this.grid_def,
       [{
-        obj: this.state,
+        obj: this.state.grid,
         default: "e"
       }],
-      this.render
+      this.render.bind(this)
     );
 
     if (event.key == "u" || event.key == "U") {
-      this.paths.pop();
+      this.state.paths.pop();
     }
 
+    this.render();
+  }
+
+  on_csv_change(event) {
+    this.state = {
+      grid: [],
+      paths: [],
+      path_start: null
+    };
+    this.selection = {
+      cells: [],
+      down: false
+    };
+
+    const extra = load_csv(event, this.grid_def, this.state);
+    for (var i = 0; i < extra.length; i += 1) {
+      this.state.paths.push([
+        [
+          extra[i][0],
+          extra[i][1]
+        ],
+        [
+          extra[i][2],
+          extra[i][3]
+        ]
+      ]);
+    }
     this.render();
   }
 
@@ -96,6 +123,7 @@ class Masyu {
     draw_grid(this.grid_def);
     this.draw_circles();
     this.draw_paths();
+    this.render_csv();
   }
 
   draw_circles() {
@@ -103,7 +131,7 @@ class Masyu {
     context.fillStyle = "#000000";
     for (var x = 0; x < this.grid_def.grid_width; x += 1) {
       for (var y = 0; y < this.grid_def.grid_height; y += 1) {
-        if (this.state[y][x] != "e") {
+        if (this.state.grid[y][x] != "e") {
           context.beginPath();
           context.arc(
             x * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def), 
@@ -113,9 +141,9 @@ class Masyu {
             2 * Math.PI,
             false
           );
-          if (this.state[y][x] == "b") {
+          if (this.state.grid[y][x] == "b") {
             context.fill();
-          } else if (this.state[y][x] == "w") {
+          } else if (this.state.grid[y][x] == "w") {
             context.stroke();
           }
         }
@@ -124,22 +152,22 @@ class Masyu {
   }
 
   draw_paths() {
-    if (this.path_start) {
+    if (this.state.path_start) {
       context.fillStyle = "rgba(255, 0, 0, 0.5)";
       context.fillRect(
-        this.path_start[0] * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
-        this.path_start[1] * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+        this.state.path_start[0] * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+        this.state.path_start[1] * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
         min_cell_size(this.grid_def),
         min_cell_size(this.grid_def)
       );
     }
 
     context.fillStyle = "#ff0000";
-    for (var i = 0; i < this.paths.length; i += 1) {
+    for (var i = 0; i < this.state.paths.length; i += 1) {
       context.beginPath();
       context.arc(
-        this.paths[i][0][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
-        this.paths[i][0][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+        this.state.paths[i][0][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+        this.state.paths[i][0][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
         5,
         0,
         2 * Math.PI,
@@ -148,29 +176,43 @@ class Masyu {
       context.fill();
       context.beginPath();
       context.arc(
-        this.paths[i][1][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
-        this.paths[i][1][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+        this.state.paths[i][1][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+        this.state.paths[i][1][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
         5,
         0,
         2 * Math.PI,
         false
       );
       context.fill();
-      if (this.paths[i][0][0] == this.paths[i][1][0]) {
+      if (this.state.paths[i][0][0] == this.state.paths[i][1][0]) {
         context.fillRect(
-          this.paths[i][0][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 - 5 + edge_margin(this.grid_def),
-          this.paths[i][0][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+          this.state.paths[i][0][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 - 5 + edge_margin(this.grid_def),
+          this.state.paths[i][0][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
           10,
-          (this.paths[i][1][1] - this.paths[i][0][1]) * min_cell_size(this.grid_def)
+          (this.state.paths[i][1][1] - this.state.paths[i][0][1]) * min_cell_size(this.grid_def)
         );
-      } else if (this.paths[i][0][1] == this.paths[i][1][1]) {
+      } else if (this.state.paths[i][0][1] == this.state.paths[i][1][1]) {
         context.fillRect(
-          this.paths[i][0][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
-          this.paths[i][0][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 - 5 + edge_margin(this.grid_def),
-          (this.paths[i][1][0] - this.paths[i][0][0]) * min_cell_size(this.grid_def),
+          this.state.paths[i][0][0] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 + edge_margin(this.grid_def),
+          this.state.paths[i][0][1] * min_cell_size(this.grid_def) + min_cell_size(this.grid_def) / 2 - 5 + edge_margin(this.grid_def),
+          (this.state.paths[i][1][0] - this.state.paths[i][0][0]) * min_cell_size(this.grid_def),
           10
         );
       }
     }
+  }
+
+  render_csv() {
+    var extra = "";
+    for (var i = 0; i < this.state.paths.length; i += 1) {
+      extra += [
+        this.state.paths[i][0][0],
+        this.state.paths[i][0][1],
+        this.state.paths[i][1][0],
+        this.state.paths[i][1][1]
+      ].join(",");
+      extra += "|";
+    }
+    output_csv(this.grid_def, this.state, extra);
   }
 }
