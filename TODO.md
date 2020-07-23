@@ -5,10 +5,13 @@ general
 - edge width should probably be a multiplier
 
 fillomino
-- undo
+- undo borders
 - allow puzzle importing
 
 sudoku
 - refine the controls, especially with regards to notes
-  - shift-arrow to select
-  - don't blindly flip note status
+    - shift-arrow to select
+    - don't blindly flip note status
+
+starbattle
+- allow selection with keyboard
