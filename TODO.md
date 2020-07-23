@@ -15,3 +15,4 @@ sudoku
 
 starbattle
 - allow selection with keyboard
+- notate star count

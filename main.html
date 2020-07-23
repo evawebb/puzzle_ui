@@ -1,62 +1,62 @@
 <!doctype html>
 
 <html>
-  <head>
-    <script type="text/javascript">
-      var canvas;
-      var context;
-      var master_canvas_size = 500;
-      var p;
-      var csv;
+    <head>
+        <script type="text/javascript">
+            var canvas;
+            var context;
+            var master_canvas_size = 500;
+            var p;
+            var csv;
 
-      function presetup() {
-        canvas = document.getElementById("puzzle");
-        context = canvas.getContext("2d");
-        csv = document.getElementById("csv");
-        csv.addEventListener("input", on_csv_change);
-        csv.value = "";
-      }
+            function presetup() {
+                canvas = document.getElementById("puzzle");
+                context = canvas.getContext("2d");
+                csv = document.getElementById("csv");
+                csv.addEventListener("input", on_csv_change);
+                csv.value = "";
+            }
 
-      function on_csv_change(event) {
-        if (p) {
-          p.on_csv_change(event);
-        }
-      }
-    </script>
-    <script src="util.js"></script>
-    <script type="text/javascript" src="fillomino.js"></script>
-    <script type="text/javascript" src="masyu.js"></script>
-    <script type="text/javascript" src="starbattle.js"></script>
-    <script type="text/javascript" src="sudoku.js"></script>
-    <script type="text/javascript">
-      function load(puzzle) {
-        if (puzzle == "fillomino") {
-          p = new Fillomino();
-        } else if (puzzle == "masyu") {
-          p = new Masyu();
-        } else if (puzzle == "starbattle") {
-          p = new Starbattle();
-        } else if (puzzle == "sudoku") {
-          p = new Sudoku();
-        }
+            function on_csv_change(event) {
+                if (p) {
+                    p.on_csv_change(event);
+                }
+            }
+        </script>
+        <script src="util.js"></script>
+        <script type="text/javascript" src="fillomino.js"></script>
+        <script type="text/javascript" src="masyu.js"></script>
+        <script type="text/javascript" src="starbattle.js"></script>
+        <script type="text/javascript" src="sudoku.js"></script>
+        <script type="text/javascript">
+            function load(puzzle) {
+                if (puzzle == "fillomino") {
+                    p = new Fillomino();
+                } else if (puzzle == "masyu") {
+                    p = new Masyu();
+                } else if (puzzle == "starbattle") {
+                    p = new Starbattle();
+                } else if (puzzle == "sudoku") {
+                    p = new Sudoku();
+                }
 
-        var selection = document.getElementById("selection");
-        selection.parentNode.removeChild(selection);
-      }
-    </script>
-  </head>
-  <body onload="presetup();">
-    <div id="selection">
-      <a href="#" onclick="load('fillomino');">fillomino</a>
-      <a href="#" onclick="load('masyu');">masyu</a>
-      <a href="#" onclick="load('starbattle');">starbattle</a>
-      <a href="#" onclick="load('sudoku');">sudoku</a>
-    </div>
-    <br />
+                var selection = document.getElementById("selection");
+                selection.parentNode.removeChild(selection);
+            }
+        </script>
+    </head>
+    <body onload="presetup();">
+        <div id="selection">
+            <a href="#" onclick="load('fillomino');">fillomino</a>
+            <a href="#" onclick="load('masyu');">masyu</a>
+            <a href="#" onclick="load('starbattle');">starbattle</a>
+            <a href="#" onclick="load('sudoku');">sudoku</a>
+        </div>
+        <br />
 
-    <canvas id="puzzle" width="500px" height="500px"></canvas>
-    <br />
+        <canvas id="puzzle" width="500px" height="500px"></canvas>
+        <br />
 
-    <textarea id="csv" rows="10" cols="30"></textarea>
-  </body>
+        <textarea id="csv" rows="10" cols="30"></textarea>
+    </body>
 </html>
