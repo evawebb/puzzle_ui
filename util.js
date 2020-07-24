@@ -9,6 +9,17 @@ function edge_margin(grid_def_obj) {
     );
 }
 
+function edge_width(grid_def_obj) {
+    return (
+        grid_def_obj.canvas_size /
+        Math.max(
+            grid_def_obj.grid_width,
+            grid_def_obj.grid_height
+        ) *
+        grid_def_obj.edge_width_multiplier
+    );
+}
+
 function cell_width(grid_def_obj) {
     return (
         (
@@ -68,10 +79,10 @@ function draw_single_edge(x1, y1, x2, y2, grid_def_obj, dark = false) {
     }
 
     context.fillRect(
-        (x1 * min_cell_size(grid_def_obj)) - (grid_def_obj.edge_width * 0.5) + edge_margin(grid_def_obj),
-        (y1 * min_cell_size(grid_def_obj)) - (grid_def_obj.edge_width * 0.5) + edge_margin(grid_def_obj),
-        ((x2 - x1) * min_cell_size(grid_def_obj)) + grid_def_obj.edge_width,
-        ((y2 - y1) * min_cell_size(grid_def_obj)) + grid_def_obj.edge_width
+        (x1 * min_cell_size(grid_def_obj)) - (edge_width(grid_def_obj) * 0.5) + edge_margin(grid_def_obj),
+        (y1 * min_cell_size(grid_def_obj)) - (edge_width(grid_def_obj) * 0.5) + edge_margin(grid_def_obj),
+        ((x2 - x1) * min_cell_size(grid_def_obj)) + edge_width(grid_def_obj),
+        ((y2 - y1) * min_cell_size(grid_def_obj)) + edge_width(grid_def_obj)
     );
 }
 

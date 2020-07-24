@@ -1,9 +1,5 @@
 general
-- unify more of the rendering stuff
-- edge width should probably be a multiplier
-
-fillomino
-- undo borders
+- undo arbitrary changes
 
 sudoku
 - refine the controls, especially with regards to notes

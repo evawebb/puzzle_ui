@@ -5,7 +5,7 @@ class Sudoku {
             grid_width: 9,
             grid_height: 9,
             edge_margin_multiplier: 0.2,
-            edge_width: 4
+            edge_width_multiplier: 0.1
         };
         this.state = {
             grid: [],

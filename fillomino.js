@@ -5,7 +5,7 @@ class Fillomino {
             grid_width: 10,
             grid_height: 10,
             edge_margin_multiplier: 0.2,
-            edge_width: 4
+            edge_width_multiplier: 0.1
         };
         this.state = {
             grid: [],
