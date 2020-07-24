@@ -17,7 +17,13 @@ class Starbattle {
             down: false
         }
 
-        init_state(this.state, this.grid_def, "");
+        init_state(
+            [{
+                obj: this.state.grid,
+                default: ""
+            }],
+            this.grid_def
+        );
 
         canvas.addEventListener("mousedown", (function(event) {
             block_select_mousedown(event, this.grid_def, this.selection, this.render.bind(this));

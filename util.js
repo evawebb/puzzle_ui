@@ -265,7 +265,11 @@ function expand_grid(event, grid_def_obj, state_objs, render_fn) {
 
             while (so.obj.length < grid_def_obj.grid_height) {
                 var new_row = [];
-                for (var j = 0; j < grid_def_obj.grid_width; j += 1) {
+                if (Array.isArray(so.default)) {
+                    new_row.push(new Array(...so.default));
+                } else if (typeof so.default == "object") {
+                    console.log("TODO: clone object default");
+                } else {
                     new_row.push(so.default);
                 }
                 so.obj.push(new_row);
@@ -294,25 +298,39 @@ function arrow_keys_select(event, grid_def_obj, selection_obj, render_fn) {
         const first_sel = selection_obj.cells[0];
         if (event.key == "ArrowUp" && first_sel[1] > 0) {
             first_sel[1] -= 1;
+            selection_obj.cells = [first_sel];
         } else if (event.key == "ArrowDown" && first_sel[1] < grid_def_obj.grid_height - 1) {
             first_sel[1] += 1;
+            selection_obj.cells = [first_sel];
         } else if (event.key == "ArrowLeft" && first_sel[0] > 0) {
             first_sel[0] -= 1;
+            selection_obj.cells = [first_sel];
         } else if (event.key == "ArrowRight" && first_sel[0] < grid_def_obj.grid_width - 1) {
             first_sel[0] += 1;
+            selection_obj.cells = [first_sel];
         }
 
         render_fn();
     }
 }
 
-function init_state(state_obj, grid_def_obj, default_value) {
-    for (var y = 0; y < grid_def_obj.grid_height; y += 1) {
-        var state_row = [];
-        for (var x = 0; x < grid_def_obj.grid_width; x += 1) {
-            state_row.push(default_value);
+function init_state(state_objs, grid_def_obj) {
+    for (var i = 0; i < state_objs.length; i += 1) {
+        var so = state_objs[i];
+
+        for (var y = 0; y < grid_def_obj.grid_height; y += 1) {
+            var new_row = [];
+            for (var x = 0; x < grid_def_obj.grid_width; x += 1) {
+                if (Array.isArray(so.default)) {
+                    new_row.push(new Array(...so.default));
+                } else if (typeof so.default == "object") {
+                    console.log("TODO: clone object default");
+                } else {
+                    new_row.push(so.default);
+                }
+            }
+            so.obj.push(new_row);
         }
-        state_obj.grid.push(state_row);
     }
 }
 
@@ -418,6 +436,20 @@ function load_extra_edge_state(extra, state_obj) {
     }
 }
 
+function load_extra_boolean_grid(extra, boolean_state_obj) {
+    for (var i = 0; i < extra.length; i += 1) {
+        const new_row = [];
+        for (var j = 0; j < extra[i][0].length; j += 1) {
+            if (extra[i][0][j] == "1") {
+                new_row.push(true);
+            } else {
+                new_row.push(false);
+            }
+        }
+        boolean_state_obj.push(new_row);
+    }
+}
+
 function render_extra_csv_edge_state(state_obj) {
     var extra = "";
     for (var x in state_obj.edges) {
@@ -425,6 +457,21 @@ function render_extra_csv_edge_state(state_obj) {
             extra += [x, y, state_obj.edges[x][y]].join(",");
             extra += "|";
         }
+    }
+    return extra;
+}
+
+function render_extra_csv_boolean_grid(boolean_state_obj) {
+    var extra = "";
+    for (var y = 0; y < boolean_state_obj.length; y += 1) {
+        for (var x = 0; x < boolean_state_obj[y].length; x += 1) {
+            if (boolean_state_obj[y][x]) {
+                extra += "1";
+            } else {
+                extra += "0";
+            }
+        }
+        extra += "|";
     }
     return extra;
 }
