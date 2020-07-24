@@ -154,7 +154,7 @@ function draw_selection(grid_def_obj, selection_obj) {
     }
 }
 
-function block_select_mousedown(event, grid_def_obj, selection_obj, render_fn) {
+function mouse_select_down(event, grid_def_obj, selection_obj, render_fn) {
     selection_obj.down = true;
     var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
     var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
@@ -170,7 +170,7 @@ function block_select_mousedown(event, grid_def_obj, selection_obj, render_fn) {
     render_fn();
 }
 
-function block_select_mousemove(event, grid_def_obj, selection_obj, render_fn) {
+function mouse_select_move(event, grid_def_obj, selection_obj, allow_block_select, render_fn) {
     if (selection_obj.down) {
         var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
         var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
@@ -183,56 +183,18 @@ function block_select_mousemove(event, grid_def_obj, selection_obj, render_fn) {
                 return p[0] == x && p[1] == y; 
             }).length == 0
         ) {
-            selection_obj.cells.push([x, y]);
+            if (allow_block_select) {
+                selection_obj.cells.push([x, y]);
+            } else {
+                selection_obj.cells = [[x, y]];
+            }
         }
 
         render_fn();
     }
 }
 
-function block_select_mouseup(event, grid_def_obj, selection_obj, render_fn) {
-    selection_obj.down = false;
-
-    render_fn();
-}
-
-function single_select_mousedown(event, grid_def_obj, selection_obj, render_fn) {
-    selection_obj.down = true;
-    var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
-    var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
-    if (
-        x >= 0 &&
-        x < grid_def_obj.grid_width &&
-        y >= 0 &&
-        y < grid_def_obj.grid_height
-    ) {
-        selection_obj.cells = [[x, y]];
-    }
-
-    render_fn();
-}
-
-function single_select_mousemove(event, grid_def_obj, selection_obj, render_fn) {
-    if (selection_obj.down) {
-        var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
-        var y = Math.floor((event.pageY - canvas.offsetTop - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));
-        if (
-            x >= 0 &&
-            x < grid_def_obj.grid_width &&
-            y >= 0 &&
-            y < grid_def_obj.grid_height &&
-            selection_obj.cells.filter(function(p) { 
-                return p[0] == x && p[1] == y; 
-            }).length == 0
-        ) {
-            selection_obj.cells = [[x, y]];
-        }
-
-        render_fn();
-    }
-}
-
-function single_select_mouseup(event, grid_def_obj, selection_obj, render_fn) {
+function mouse_select_up(event, grid_def_obj, selection_obj, render_fn) {
     selection_obj.down = false;
 
     render_fn();

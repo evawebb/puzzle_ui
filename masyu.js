@@ -26,13 +26,13 @@ class Masyu {
         }
 
         canvas.addEventListener("mousedown", (function(event) {
-            single_select_mousedown(event, this.grid_def, this.selection, this.render.bind(this));
+            mouse_select_down(event, this.grid_def, this.selection, this.render.bind(this));
         }).bind(this));
         canvas.addEventListener("mousemove", (function(event) {
-            single_select_mousemove(event, this.grid_def, this.selection, this.render.bind(this));
+            mouse_select_move(event, this.grid_def, this.selection, false, this.render.bind(this));
         }).bind(this));
         canvas.addEventListener("mouseup", (function(event) {
-            single_select_mouseup(event, this.grid_def, this.selection, this.render.bind(this));
+            mouse_select_up(event, this.grid_def, this.selection, this.render.bind(this));
 
             var x = this.selection.cells[0][0];
             var y = this.selection.cells[0][1];
