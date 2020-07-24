@@ -257,19 +257,28 @@ function arrow_keys_select(event, grid_def_obj, selection_obj, render_fn) {
             event.key == "ArrowRight"
         )
     ) {
-        const first_sel = selection_obj.cells[0];
-        if (event.key == "ArrowUp" && first_sel[1] > 0) {
-            first_sel[1] -= 1;
-            selection_obj.cells = [first_sel];
-        } else if (event.key == "ArrowDown" && first_sel[1] < grid_def_obj.grid_height - 1) {
-            first_sel[1] += 1;
-            selection_obj.cells = [first_sel];
-        } else if (event.key == "ArrowLeft" && first_sel[0] > 0) {
-            first_sel[0] -= 1;
-            selection_obj.cells = [first_sel];
-        } else if (event.key == "ArrowRight" && first_sel[0] < grid_def_obj.grid_width - 1) {
-            first_sel[0] += 1;
-            selection_obj.cells = [first_sel];
+        const relevant_cell = [...selection_obj.cells[selection_obj.cells.length - 1]];
+        var valid_change = false
+        if (event.key == "ArrowUp" && relevant_cell[1] > 0) {
+            relevant_cell[1] -= 1;
+            valid_change = true;
+        } else if (event.key == "ArrowDown" && relevant_cell[1] < grid_def_obj.grid_height - 1) {
+            relevant_cell[1] += 1;
+            valid_change = true;
+        } else if (event.key == "ArrowLeft" && relevant_cell[0] > 0) {
+            relevant_cell[0] -= 1;
+            valid_change = true;
+        } else if (event.key == "ArrowRight" && relevant_cell[0] < grid_def_obj.grid_width - 1) {
+            relevant_cell[0] += 1;
+            valid_change = true;
+        }
+
+        if (valid_change) {
+            if (event.shiftKey) {
+                selection_obj.cells.push(relevant_cell);
+            } else {
+                selection_obj.cells = [relevant_cell];
+            }
         }
 
         render_fn();
