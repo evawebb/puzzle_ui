@@ -154,11 +154,23 @@ function draw_grid(grid_def_obj, dark_edges = {}) {
 }
 
 function draw_selection(grid_def_obj, selection_obj) {
-    context.fillStyle = "#a0ffa0";
-    for (var i = 0; i < selection_obj.cells.length; i += 1) {
+    const num_cells = selection_obj.cells.length;
+
+    if (num_cells > 0) {
+        context.fillStyle = "#a0ffa0";
+        for (var i = 0; i < num_cells - 1; i += 1) {
+            context.fillRect(
+                selection_obj.cells[i][0] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
+                selection_obj.cells[i][1] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
+                min_cell_size(grid_def_obj),
+                min_cell_size(grid_def_obj)
+            );
+        }
+
+        context.fillStyle = "#80ff80";
         context.fillRect(
-            selection_obj.cells[i][0] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
-            selection_obj.cells[i][1] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
+            selection_obj.cells[num_cells - 1][0] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
+            selection_obj.cells[num_cells - 1][1] * min_cell_size(grid_def_obj) + edge_margin(grid_def_obj),
             min_cell_size(grid_def_obj),
             min_cell_size(grid_def_obj)
         );

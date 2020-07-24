@@ -28,6 +28,7 @@
         <script type="text/javascript" src="masyu.js"></script>
         <script type="text/javascript" src="starbattle.js"></script>
         <script type="text/javascript" src="sudoku.js"></script>
+        <script type="text/javascript" src="tapa.js"></script>
         <script type="text/javascript">
             function load(puzzle) {
                 if (puzzle == "fillomino") {
@@ -38,6 +39,8 @@
                     p = new Starbattle();
                 } else if (puzzle == "sudoku") {
                     p = new Sudoku();
+                } else if (puzzle == "tapa") {
+                    p = new Tapa();
                 }
 
                 var selection = document.getElementById("selection");
@@ -51,6 +54,7 @@
             <a href="#" onclick="load('masyu');">masyu</a>
             <a href="#" onclick="load('starbattle');">starbattle</a>
             <a href="#" onclick="load('sudoku');">sudoku</a>
+            <a href="#" onclick="load('tapa');">tapa</a>
         </div>
         <br />
 

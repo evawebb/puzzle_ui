@@ -61,7 +61,7 @@ class Sudoku {
 
         if (this.selection.cells.length > 0 && ["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x"].includes(event.key)) {
             for (var i = 0; i < this.selection.cells.length; i += 1) {
-                var cell = this.state.grid[this.selection.cells[i][1]][this.selection.cells[i][0]]
+                var cell = this.state.grid[this.selection.cells[i][1]][this.selection.cells[i][0]];
                 if (event.key == "Delete" || event.key == "x") {
                     cell = "";
                 } else {
