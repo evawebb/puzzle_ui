@@ -7,17 +7,15 @@ class Starbattle {
             edge_margin_multiplier: 0.2,
             edge_width: 4
         };
-
-        this.selection = {
-            cells: [],
-            down: false
-        }
-
         this.state = {
             grid: [],
             edges: {},
             history: []
         };
+        this.selection = {
+            cells: [],
+            down: false
+        }
 
         init_state(this.state, this.grid_def, "");
 
@@ -45,16 +43,14 @@ class Starbattle {
             }],
             this.render.bind(this)
         );
+        arrow_keys_select(
+            event,
+            this.grid_def,
+            this.selection,
+            this.render.bind(this)
+        );
 
-        if (this.selection.cells.length == 1 && event.key == "ArrowUp" && this.selection.cells[0][1] > 0) {
-            this.selection.cells[0][1] -= 1;
-        } else if (this.selection.cells.length == 1 && event.key == "ArrowDown" && this.selection.cells[0][1] < this.grid_def.grid_height - 1) {
-            this.selection.cells[0][1] += 1;
-        } else if (this.selection.cells.length == 1 && event.key == "ArrowLeft" && this.selection.cells[0][0] > 0) {
-            this.selection.cells[0][0] -= 1;
-        } else if (this.selection.cells.length == 1 && event.key == "ArrowRight" && this.selection.cells[0][0] < this.grid_def.grid_width - 1) {
-            this.selection.cells[0][0] += 1;
-        } else if (event.key == "u") {
+        if (event.key == "u") {
             undo(this.state);
         } else if (this.selection.cells.length > 0) { 
             var selected_cells_lookup = {};
@@ -120,15 +116,7 @@ class Starbattle {
         };
 
         const extra = load_csv(event, this.grid_def, this.state);
-        for (var i = 0; i < extra.length; i += 1) {
-            set_edge_state(
-                this.state.edges,
-                extra[i][0],
-                extra[i][1],
-                parseInt(extra[i][2]),
-                true
-            );
-        }
+        load_extra_edge_state(extra, this.state);
         this.render();
     }
 
@@ -169,13 +157,6 @@ class Starbattle {
     }
 
     render_csv() {
-        var extra = "";
-        for (var x in this.state.edges) {
-            for (var y in this.state.edges[x]) {
-                extra += [x, y, this.state.edges[x][y]].join(",");
-                extra += "|";
-            }
-        }
-        output_csv(this.grid_def, this.state, extra);
+        output_csv(this.grid_def, this.state, render_extra_csv_edge_state(this.state));
     }
 }

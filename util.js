@@ -282,6 +282,30 @@ function expand_grid(event, grid_def_obj, state_objs, render_fn) {
     }
 }
 
+function arrow_keys_select(event, grid_def_obj, selection_obj, render_fn) {
+    if (
+        selection_obj.cells.length > 0 && (
+            event.key == "ArrowUp" || 
+            event.key == "ArrowDown" ||
+            event.key == "ArrowLeft" ||
+            event.key == "ArrowRight"
+        )
+    ) {
+        const first_sel = selection_obj.cells[0];
+        if (event.key == "ArrowUp" && first_sel[1] > 0) {
+            first_sel[1] -= 1;
+        } else if (event.key == "ArrowDown" && first_sel[1] < grid_def_obj.grid_height - 1) {
+            first_sel[1] += 1;
+        } else if (event.key == "ArrowLeft" && first_sel[0] > 0) {
+            first_sel[0] -= 1;
+        } else if (event.key == "ArrowRight" && first_sel[0] < grid_def_obj.grid_width - 1) {
+            first_sel[0] += 1;
+        }
+
+        render_fn();
+    }
+}
+
 function init_state(state_obj, grid_def_obj, default_value) {
     for (var y = 0; y < grid_def_obj.grid_height; y += 1) {
         var state_row = [];
@@ -380,6 +404,29 @@ function load_csv(event, grid_def_obj, state_obj) {
         alert(error_message);
         return null;
     }
+}
+
+function load_extra_edge_state(extra, state_obj) {
+    for (var i = 0; i < extra.length; i += 1) {
+        set_edge_state(
+            state_obj.edges, 
+            extra[i][0],
+            extra[i][1],
+            parseInt(extra[i][2]),
+            true
+        );
+    }
+}
+
+function render_extra_csv_edge_state(state_obj) {
+    var extra = "";
+    for (var x in state_obj.edges) {
+        for (var y in state_obj.edges[x]) {
+            extra += [x, y, state_obj.edges[x][y]].join(",");
+            extra += "|";
+        }
+    }
+    return extra;
 }
 
 function output_csv(grid_def_obj, state_obj, extra) {

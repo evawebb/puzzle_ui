@@ -43,9 +43,17 @@ class Fillomino {
             }],
             this.render.bind(this)
         );
+        arrow_keys_select(
+            event,
+            this.grid_def,
+            this.selection,
+            this.render.bind(this)
+        );
 
         const sc = this.selection.cells[0];
-        if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x", "t", "T"].includes(event.key) && sc) {
+        if (event.key == "u") {
+            undo(this.state);
+        } else if (["1", "2", "3", "4", "5", "6", "7", "8", "9", "Delete", "x", "t", "T"].includes(event.key) && sc) {
             var new_state = null;
             if (event.key == "Delete" || event.key == "x") {
                 new_state = "";
@@ -70,16 +78,6 @@ class Fillomino {
                 [[sc[0], sc[1]]],
                 new_state
             );
-        } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key) && sc) {
-            if (event.key == "ArrowUp" && sc[1] > 0) {
-                sc[1] -= 1;
-            } else if (event.key == "ArrowDown" && sc[1] < this.grid_def.grid_height - 1) {
-                sc[1] += 1;
-            } else if (event.key == "ArrowLeft" && sc[0] > 0) {
-                sc[0] -= 1;
-            } else if (event.key == "ArrowRight" && sc[0] < this.grid_def.grid_width - 1) {
-                sc[0] += 1;
-            }
         } else if (["w", "a", "s", "d"].includes(event.key) && sc) {
             if (event.key == "w" && sc[1] > 0) {
                 toggle_edge_state(this.state.edges, sc[0], sc[1], 1);
@@ -90,8 +88,6 @@ class Fillomino {
             } else if (event.key == "d" && sc[0] < this.grid_def.grid_width - 1) {
                 toggle_edge_state(this.state.edges, sc[0] + 1, sc[1], 2);
             }
-        } else if (event.key == "u") {
-            undo(this.state);
         }
 
         this.render();
@@ -109,15 +105,7 @@ class Fillomino {
         };
 
         const extra = load_csv(event, this.grid_def, this.state);
-        for (var i = 0; i < extra.length; i += 1) {
-            set_edge_state(
-                this.state.edges, 
-                extra[i][0],
-                extra[i][1],
-                parseInt(extra[i][2]),
-                true
-            );
-        }
+        load_extra_edge_state(extra, this.state);
         this.render();
     }
 
@@ -148,13 +136,6 @@ class Fillomino {
     }
 
     render_csv() {
-        var extra = "";
-        for (var x in this.state.edges) {
-            for (var y in this.state.edges[x]) {
-                extra += [x, y, this.state.edges[x][y]].join(",");
-                extra += "|";
-            }
-        }
-        output_csv(this.grid_def, this.state, extra);
+        output_csv(this.grid_def, this.state, render_extra_csv_edge_state(this.state));
     }
 }
