@@ -151,15 +151,27 @@ class Starbattle {
                     );
                     context.fill();
                 } else if (this.state.grid[y][x] == "s") {
-                    context.fillRect(
-                        x * min_cell_size(this.grid_def) + 2 * edge_margin(this.grid_def),
-                        y * min_cell_size(this.grid_def) + 2 * edge_margin(this.grid_def),
-                        min_cell_size(this.grid_def) - 2 * edge_margin(this.grid_def),
-                        min_cell_size(this.grid_def) - 2 * edge_margin(this.grid_def)
-                    );
+                    this.draw_star(x, y);
                 }
             }
         }
+    }
+
+    draw_star(x, y) {
+        const angle = Math.PI * 4 / 5;
+        const cx = (x + 0.5) * min_cell_size(this.grid_def) + edge_margin(this.grid_def);
+        const cy = (y + 0.5268) * min_cell_size(this.grid_def) + edge_margin(this.grid_def);
+        const first_x = 0;
+        const first_y = -0.4 * min_cell_size(this.grid_def);
+        context.beginPath();
+        context.moveTo(cx + first_x, cy + first_y);
+        for (var i = 1; i <= 4; i += 1) {
+            context.lineTo(
+                cx + (first_x * Math.cos(i * angle) - first_y * Math.sin(i * angle)),
+                cy + (first_x * Math.sin(i * angle) + first_y * Math.cos(i * angle))
+            );
+        }
+        context.fill();
     }
 
     render_csv() {
