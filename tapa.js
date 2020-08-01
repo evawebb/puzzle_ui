@@ -68,10 +68,10 @@ class Tapa {
             for (var i = 0; i < this.selection.cells.length; i += 1) {
                 var cell = this.state.grid[this.selection.cells[i][1]][this.selection.cells[i][0]];
                 if (cell == "") {
-                    cell = "w";
-                } else if (cell == "w") {
                     cell = "b";
                 } else if (cell == "b") {
+                    cell = "w";
+                } else if (cell == "w") {
                     cell = "";
                 }
                 this.state.grid[this.selection.cells[i][1]][this.selection.cells[i][0]] = cell;
@@ -115,62 +115,62 @@ class Tapa {
                 var cell = this.state.grid[y][x];
                 if (cell.length > 0 && cell != "w" && cell != "b") {
                     if (cell.length == 1) {
-                        context.font = "" + Math.floor(cell_height(this.grid_def) * 0.8) + "px serif";
+                        context.font = "" + Math.floor(min_cell_size(this.grid_def) * 0.8) + "px serif";
                         context.fillText(
                             cell,
-                            (x + 0.5) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.5) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.5) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.5) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                     } else if (cell.length == 2) {
-                        context.font = "" + Math.floor(cell_height(this.grid_def) * 0.5) + "px serif";
+                        context.font = "" + Math.floor(min_cell_size(this.grid_def) * 0.5) + "px serif";
                         context.fillText(
                             cell[0],
-                            (x + 0.35) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.35) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.35) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.35) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                         context.fillText(
                             cell[1],
-                            (x + 0.65) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.65) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.65) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.65) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                     } else if (cell.length == 3) {
-                        context.font = "" + Math.floor(cell_height(this.grid_def) * 0.5) + "px serif";
+                        context.font = "" + Math.floor(min_cell_size(this.grid_def) * 0.5) + "px serif";
                         context.fillText(
                             cell[0],
-                            (x + 0.25) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.35) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.25) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.35) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                         context.fillText(
                             cell[1],
-                            (x + 0.75) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.35) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.75) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.35) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                         context.fillText(
                             cell[2],
-                            (x + 0.5) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.65) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.5) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.65) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                     } else if (cell.length == 4) {
-                        context.font = "" + Math.floor(cell_height(this.grid_def) * 0.5) + "px serif";
+                        context.font = "" + Math.floor(min_cell_size(this.grid_def) * 0.5) + "px serif";
                         context.fillText(
                             cell[0],
-                            (x + 0.5) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.25) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.5) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.25) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                         context.fillText(
                             cell[1],
-                            (x + 0.25) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.5) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.25) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.5) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                         context.fillText(
                             cell[2],
-                            (x + 0.75) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.5) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.75) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.5) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                         context.fillText(
                             cell[3],
-                            (x + 0.5) * cell_width(this.grid_def) + edge_margin(this.grid_def),
-                            (y + 0.75) * cell_height(this.grid_def) + edge_margin(this.grid_def)
+                            (x + 0.5) * min_cell_size(this.grid_def) + edge_margin(this.grid_def),
+                            (y + 0.75) * min_cell_size(this.grid_def) + edge_margin(this.grid_def)
                         );
                     }
                 }
