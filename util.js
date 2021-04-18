@@ -298,6 +298,20 @@ function arrow_keys_select(event, grid_def_obj, selection_obj, render_fn) {
 
         if (valid_change) {
             if (event.shiftKey) {
+                var duplicate_index = -1;
+                for (var i = 0; i < selection_obj.cells.length; i += 1) {
+                    if (
+                        relevant_cell[0] == selection_obj.cells[i][0] &&
+                        relevant_cell[1] == selection_obj.cells[i][1]
+                    ) {
+                        duplicate_index = i;
+                        break
+                    }
+                }
+
+                if (duplicate_index != -1) {
+                    selection_obj.cells.splice(duplicate_index, 1);
+                }
                 selection_obj.cells.push(relevant_cell);
             } else {
                 selection_obj.cells = [relevant_cell];

@@ -26,6 +26,7 @@
         <script src="util.js"></script>
         <script type="text/javascript" src="fillomino.js"></script>
         <script type="text/javascript" src="masyu.js"></script>
+        <script type="text/javascript" src="nurikabe.js"></script>
         <script type="text/javascript" src="starbattle.js"></script>
         <script type="text/javascript" src="sudoku.js"></script>
         <script type="text/javascript" src="tapa.js"></script>
@@ -35,6 +36,8 @@
                     p = new Fillomino();
                 } else if (puzzle == "masyu") {
                     p = new Masyu();
+                } else if (puzzle == "nurikabe") {
+                    p = new Nurikabe();
                 } else if (puzzle == "starbattle") {
                     p = new Starbattle();
                 } else if (puzzle == "sudoku") {
@@ -50,10 +53,11 @@
     </head>
     <body onload="presetup();">
         <div id="selection">
-            <a href="#" onclick="load('fillomino');">fillomino</a>
-            <a href="#" onclick="load('masyu');">masyu</a>
-            <a href="#" onclick="load('starbattle');">starbattle</a>
-            <a href="#" onclick="load('sudoku');">sudoku</a>
+            <a href="#" onclick="load('fillomino');">fillomino</a><br/>
+            <a href="#" onclick="load('masyu');">masyu</a><br/>
+            <a href="#" onclick="load('nurikabe');">nurikabe</a><br/>
+            <a href="#" onclick="load('starbattle');">starbattle</a><br/>
+            <a href="#" onclick="load('sudoku');">sudoku</a><br/>
             <a href="#" onclick="load('tapa');">tapa</a>
         </div>
         <br />
