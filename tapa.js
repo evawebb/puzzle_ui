@@ -62,7 +62,11 @@ class Tapa {
                     cell_split.sort();
                     cell = cell_split.join("");
                 }
-                this.state.grid[this.selection.cells[i][1]][this.selection.cells[i][0]] = cell;
+                set_state(
+                    this.state,
+                    [this.selection.cells[i]],
+                    cell
+                );
             }
         } else if (this.selection.cells.length > 0 && event.key == " ") {
             for (var i = 0; i < this.selection.cells.length; i += 1) {
@@ -74,7 +78,11 @@ class Tapa {
                 } else if (cell == "w") {
                     cell = "";
                 }
-                this.state.grid[this.selection.cells[i][1]][this.selection.cells[i][0]] = cell;
+                set_state(
+                    this.state,
+                    [this.selection.cells[i]],
+                    cell
+                );
             }
         }
 
