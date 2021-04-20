@@ -94,9 +94,9 @@ class Starbattle {
                 var first_value = this.state.grid[first_coord[1]][first_coord[0]];
                 var next_value = "";
                 if (first_value == "") {
-                    next_value = "s";
-                } else if (first_value == "s") {
                     next_value = "n";
+                } else if (first_value == "n") {
+                    next_value = "s";
                 }
 
                 set_state(
