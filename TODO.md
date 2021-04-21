@@ -9,6 +9,7 @@ general
 - add space for notes
 - maybe just export as normal JSON?
 - maybe render selections as borders?
+- make edge state undo-able
 
 sudoku
 - don't blindly flip note status
