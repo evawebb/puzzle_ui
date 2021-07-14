@@ -72,10 +72,10 @@ class Tapa {
             for (var i = 0; i < this.selection.cells.length; i += 1) {
                 var cell = this.state.grid[this.selection.cells[i][1]][this.selection.cells[i][0]];
                 if (cell == "") {
-                    cell = "w";
-                } else if (cell == "w") {
                     cell = "b";
                 } else if (cell == "b") {
+                    cell = "w";
+                } else if (cell == "w") {
                     cell = "";
                 }
                 set_state(
