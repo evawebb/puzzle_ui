@@ -86,13 +86,13 @@ class Fillomino {
             );
         } else if (["w", "a", "s", "d"].includes(event.key) && sc) {
             if (event.key == "w" && sc[1] > 0) {
-                toggle_edge_state(this.state.edges, sc[0], sc[1], 1);
+                toggle_edge_state(this.state, sc[0], sc[1], 1);
             } else if (event.key == "a" && sc[0] > 0) {
-                toggle_edge_state(this.state.edges, sc[0], sc[1], 2);
+                toggle_edge_state(this.state, sc[0], sc[1], 2);
             } else if (event.key == "s" && sc[1] < this.grid_def.grid_height - 1) {
-                toggle_edge_state(this.state.edges, sc[0], sc[1] + 1, 1);
+                toggle_edge_state(this.state, sc[0], sc[1] + 1, 1);
             } else if (event.key == "d" && sc[0] < this.grid_def.grid_width - 1) {
-                toggle_edge_state(this.state.edges, sc[0] + 1, sc[1], 2);
+                toggle_edge_state(this.state, sc[0] + 1, sc[1], 2);
             }
         }
 

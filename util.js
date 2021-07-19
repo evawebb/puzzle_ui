@@ -61,14 +61,21 @@ function set_edge_state(edge_state, x, y, direction, dark) {
     }
 }
 
-function toggle_edge_state(edge_state, x, y, direction) {
+function toggle_edge_state(state_obj, x, y, direction) {
+    var edge_state = state_obj.edges;
     if (!edge_state[x]) {
         edge_state[x] = {};
     }
     if (!edge_state[x][y]) {
         edge_state[x][y] = 0;
     }
-    edge_state[x][y] = edge_state[x][y] ^ direction;
+    var new_value = edge_state[x][y] ^ direction;
+    set_state(
+        state_obj,
+        [[y, x]],
+        new_value,
+        "edges"
+    );
 }
 
 function draw_single_edge(x1, y1, x2, y2, grid_def_obj, dark = false) {

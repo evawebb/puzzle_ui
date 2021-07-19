@@ -29,10 +29,10 @@ class Sudoku {
         for (var y = 0; y < this.grid_def.grid_height; y += 1) {
             for (var x = 0; x < this.grid_def.grid_width; x += 1) {
                 if (y == 3 || y == 6) {
-                    toggle_edge_state(this.state.edges, x, y, 1);
+                    toggle_edge_state(this.state, x, y, 1);
                 }
                 if (x == 3 || x == 6) {
-                    toggle_edge_state(this.state.edges, x, y, 2);
+                    toggle_edge_state(this.state, x, y, 2);
                 }
             }
         }
