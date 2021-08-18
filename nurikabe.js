@@ -21,15 +21,9 @@ class Nurikabe {
             this.grid_def
         );
 
-        canvas.addEventListener("mousedown", (function(event) {
-            mouse_select_down(event, this.grid_def, this.selection, this.render.bind(this));
-        }).bind(this));
-        canvas.addEventListener("mousemove", (function(event) {
-            mouse_select_move(event, this.grid_def, this.selection, false, this.render.bind(this));
-        }).bind(this));
-        canvas.addEventListener("mouseup", (function(event) {
-            mouse_select_up(event, this.grid_def, this.selection, this.render.bind(this));
-        }).bind(this));
+        canvas.addEventListener("mousedown", get_mouse_select_down_listener(this));
+        canvas.addEventListener("mousemove", get_mouse_select_move_listener(this, false));
+        canvas.addEventListener("mouseup", get_mouse_select_up_listener(this));
         document.addEventListener("keydown", this.on_key.bind(this));
 
         this.render();

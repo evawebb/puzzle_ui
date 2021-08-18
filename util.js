@@ -184,6 +184,24 @@ function draw_selection(grid_def_obj, selection_obj) {
     }
 }
 
+function get_mouse_select_down_listener(that) {
+    return (function(event) {
+        mouse_select_down(event, that.grid_def, that.selection, that.render.bind(that));
+    }).bind(that);
+}
+
+function get_mouse_select_move_listener(that, allow_block_select) {
+    return (function(event) {
+        mouse_select_move(event, that.grid_def, that.selection, allow_block_select, that.render.bind(that));
+    }).bind(that);
+}
+
+function get_mouse_select_up_listener(that) {
+    return (function(event) {
+        mouse_select_up(event, that.grid_def, that.selection, that.render.bind(that));
+    }).bind(that);
+}
+
 function mouse_select_down(event, grid_def_obj, selection_obj, render_fn) {
     selection_obj.down = true;
     var x = Math.floor((event.pageX - canvas.offsetLeft - edge_margin(grid_def_obj)) / min_cell_size(grid_def_obj));

@@ -7,6 +7,7 @@ general
 - maybe just export as normal JSON?
 - maybe render selections as borders?
 - create undo tree so we can redo
+- ensure all puzzles are correctly using bulk set_state
 
 sudoku
 - don't blindly flip note status
